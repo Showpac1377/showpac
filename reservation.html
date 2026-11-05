@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link%20rel="icon"%20type="image/svg+xml"%20href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2096%2096%22%3E%3Crect%20width=%2296%22%20height=%2296%22%20rx=%2226%22%20fill=%22%23E2572B%22/%3E%3Crect%20x=%2234%22%20y=%2214%22%20width=%2228%22%20height=%2238%22%20rx=%2214%22%20fill=%22%23F7F5F1%22/%3E%3Cline%20x1=%2240%22%20y1=%2226%22%20x2=%2256%22%20y2=%2226%22%20stroke=%22%23E2572B%22%20stroke-width=%222.6%22%20stroke-linecap=%22round%22/%3E%3Cline%20x1=%2240%22%20y1=%2234%22%20x2=%2256%22%20y2=%2234%22%20stroke=%22%23E2572B%22%20stroke-width=%222.6%22%20stroke-linecap=%22round%22/%3E%3Cpath%20d=%22M25%2040%20a23%2023%200%200%200%2046%200%22%20fill=%22none%22%20stroke=%22%23F7F5F1%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Cline%20x1=%2248%22%20y1=%2263%22%20x2=%2248%22%20y2=%2276%22%20stroke=%22%23F7F5F1%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Cline%20x1=%2235%22%20y1=%2278%22%20x2=%2261%22%20y2=%2278%22%20stroke=%22%23F7F5F1%22%20stroke-width=%225%22%20stroke-linecap=%22round%22/%3E%3Cpolygon%20points=%220%2C-1%200.247%2C-0.34%200.951%2C-0.309%200.399%2C0.13%200.588%2C0.809%200%2C0.42%20-0.588%2C0.809%20-0.399%2C0.13%20-0.951%2C-0.309%20-0.247%2C-0.34%22%20fill=%22%23F2B705%22%20transform=%22translate%2877%2019%29%20scale%2810%29%22/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réserver un forfait karaoké | ShowPAC</title>
+<meta name="description" content="Réservez votre système karaoké ou votre animateur dans le Grand Montréal&nbsp;: choisissez votre forfait, ajoutez vos extras et voyez le total tout de suite.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5F1;
+    --bg-elevated:#FFFFFF;
+    --text:#171A20;
+    --text-secondary:#52565E;
+    --text-muted:#6B6F76;
+    --gold:#E2572B;
+    --gold-ui:#C4451B;
+    --gold-soft:#F2B705;
+    --emerald:#16594A;
+    --burgundy:#B8391A;
+    --border:rgba(23,26,32,0.12);
+    --border-strong:rgba(23,26,32,0.22);
+    --radius:20px;
+    --shadow-soft:0 1px 2px rgba(23,26,32,0.04), 0 12px 32px rgba(23,26,32,0.06);
+    --font-head:'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --font-body:'IBM Plex Sans', -apple-system, Segoe UI, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{max-width:100%;display:block;}
+  a{color:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3,h4{font-family:var(--font-head);font-weight:600;line-height:1.15;margin:0;letter-spacing:-0.01em;}
+  h1{font-size:clamp(34px,5vw,54px);font-weight:700;}
+  h2{font-size:clamp(26px,3.4vw,36px);}
+  h3{font-size:20px;}
+  p{margin:0;}
+  .eyebrow{font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--emerald);margin:0 0 10px;}
+  .section{padding:88px 0;}
+  .section-tight{padding:56px 0;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-body);font-weight:600;font-size:15px;
+    padding:13px 24px;border-radius:100px;text-decoration:none;white-space:nowrap;
+    border:1px solid transparent;cursor:pointer;
+  }
+  .btn-primary{background:var(--gold-ui);color:#FFFFFF;}
+  .btn-secondary{background:var(--emerald);color:#FFFFFF;border-color:var(--emerald);}
+  .btn-on-dark{background:var(--gold-ui);color:#FFFFFF;}
+
+  /* header */
+  header{
+    position:sticky;top:0;z-index:40;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;}
+  .logo{font-family:var(--font-head);font-weight:700;font-size:19px;letter-spacing:-0.01em;display:flex;align-items:baseline;gap:2px;}
+  .logo em{font-style:normal;color:var(--gold);}
+  .nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;font-size:14px;font-weight:500;color:var(--text-secondary);}
+  .nav-links a{text-decoration:none;}
+  .nav-links a:hover{color:var(--text);}
+  .nav{gap:20px;}
+  @media(max-width:1180px){.nav-links{gap:18px;font-size:13px;}}
+  .nav-cta{display:flex;align-items:center;gap:16px;}
+  .nav-phone{font-size:14px;font-weight:600;text-decoration:none;display:none;}
+  @media(min-width:1100px){.nav-phone{display:inline;}}
+  .menu-toggle{display:none;background:none;border:1px solid var(--border-strong);border-radius:8px;width:38px;height:38px;align-items:center;justify-content:center;}
+  @media(max-width:1179px){
+    .nav-links{display:none;}
+    .menu-toggle{display:flex;}
+  }
+
+  /* hero */
+  .hero{padding:64px 0 40px;position:relative;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:-140px;right:-140px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle, color-mix(in srgb, var(--gold) 20%, transparent), transparent 70%);z-index:-1;pointer-events:none;}
+  .hero::after{content:"";position:absolute;bottom:-160px;left:-120px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle, color-mix(in srgb, var(--emerald) 16%, transparent), transparent 70%);z-index:-1;pointer-events:none;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr 0.85fr;gap:56px;align-items:center;}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+  .hero-lede{font-size:18px;color:var(--text-secondary);margin-top:18px;max-width:46ch;}
+  .hero-slogan{font-family:var(--font-head);font-size:20px;font-weight:600;color:var(--emerald);margin-top:14px;}
+  .hero-actions{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap;}
+  .stat-row{display:flex;gap:32px;margin-top:44px;flex-wrap:wrap;}
+  .stat b{display:block;font-family:var(--font-head);font-size:26px;font-weight:700;}
+  .stat span{font-size:13px;color:var(--text-muted);}
+  .hero-art{background:var(--bg-elevated);border:1px solid var(--border);border-radius:28px;padding:28px;box-shadow:var(--shadow-soft);}
+  .hero-art{background:#171A20;border-color:transparent;padding:20px;display:flex;align-items:center;justify-content:center;}
+  .hero-logo{display:block;width:100%;height:auto;border-radius:16px;-webkit-mask-image:radial-gradient(ellipse at center,#000 68%,transparent 100%);mask-image:radial-gradient(ellipse at center,#000 68%,transparent 100%);}
+
+  /* trust / intro */
+  .intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+  @media(max-width:860px){.intro-grid{grid-template-columns:1fr;}}
+  .founder-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:28px;display:flex;gap:14px;align-items:center;box-shadow:var(--shadow-soft);}
+  .founder-avatar{width:52px;height:52px;border-radius:50%;background:var(--emerald);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-head);font-weight:600;flex-shrink:0;}
+  .hours-list{list-style:none;margin:20px 0 0;padding:0;font-size:14px;color:var(--text-secondary);}
+  .hours-list li{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);}
+  .hours-list li:first-child{border-top:none;}
+
+  /* histoire */
+  .history-title{max-width:760px;}
+  .history-quote{margin-top:8px;padding-top:32px;border-top:1px solid var(--border);font-family:var(--font-head);font-size:clamp(20px,2.6vw,28px);font-weight:600;line-height:1.3;max-width:36ch;}
+  .history-eyebrow{font-size:52px;line-height:1.1;margin-bottom:18px;}
+  @media(max-width:480px){.history-eyebrow{font-size:38px;}}
+  .timeline{margin-top:40px;}
+  .timeline-row{display:grid;grid-template-columns:230px 1fr;gap:32px;padding:32px 0;border-top:1px solid var(--border);align-items:start;}
+  .timeline-row:first-child{border-top:none;}
+  .timeline-year{font-family:var(--font-head);font-size:34px;font-weight:700;color:var(--gold);line-height:1.1;white-space:nowrap;}
+  .timeline-body h3{font-size:22px;}
+  .timeline-body p{margin-top:12px;color:var(--text-secondary);max-width:68ch;}
+  @media(max-width:700px){
+    .timeline-row{grid-template-columns:1fr;gap:10px;padding:26px 0;}
+    .timeline-year{font-size:30px;}
+  }
+
+  /* packages */
+  .pkg-header{max-width:640px;}
+  .pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px;}
+  @media(max-width:900px){.pkg-grid{grid-template-columns:1fr;}}
+  .pkg-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;position:relative;box-shadow:var(--shadow-soft);}
+  .pkg-card.featured{border:2px solid var(--gold);}
+  .pkg-badge{position:absolute;top:-13px;left:24px;background:var(--gold-ui);color:#FFFFFF;font-size:12px;font-weight:600;padding:5px 12px;border-radius:100px;}
+  .pkg-name{font-family:var(--font-head);font-size:20px;font-weight:600;}
+  .pkg-price{margin-top:10px;}
+  .pkg-price b{font-family:var(--font-head);font-size:30px;font-weight:700;}
+  .pkg-price span{font-size:13px;color:var(--text-muted);}
+  .pkg-list{list-style:none;margin:22px 0 0;padding:0;flex:1;}
+  .pkg-list li{display:flex;gap:10px;padding:7px 0;font-size:14px;color:var(--text-secondary);}
+  .pkg-list li svg{flex-shrink:0;margin-top:3px;}
+  .pkg-note{font-size:13px;color:var(--text-muted);margin-top:22px;}
+  .pkg-cta{display:block;text-align:center;margin-top:18px;padding:12px 20px;border-radius:100px;font-weight:600;font-size:14px;text-decoration:none;background:var(--text);color:var(--bg);}
+  .pkg-card.featured .pkg-cta{background:var(--gold-ui);color:#FFFFFF;}
+  .pkg-secure{font-size:12px;color:var(--text-muted);text-align:center;margin-top:10px;}
+
+  /* dj section */
+  .dj-band{background:var(--emerald);color:#F4F6F2;border-radius:28px;padding:52px;margin-top:0;}
+  .dj-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;}
+  @media(max-width:860px){.dj-grid{grid-template-columns:1fr;}}
+  .dj-band .eyebrow{color:#BFE3D7;}
+  .dj-band p{color:#D9EAE4;margin-top:14px;max-width:52ch;}
+  .dj-photo{margin:0 0 24px;display:flex;align-items:center;gap:18px;}
+  .dj-photo img{width:128px;height:160px;object-fit:cover;object-position:center top;border-radius:20px;border:2px solid rgba(244,246,242,0.25);flex-shrink:0;}
+  .dj-photo figcaption{display:flex;flex-direction:column;gap:2px;}
+  .dj-photo figcaption strong{font-family:var(--font-head);font-size:20px;font-weight:600;color:#F4F6F2;}
+  .dj-photo figcaption span{font-size:14px;color:#BFE3D7;}
+  .dj-points{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:12px;}
+  .dj-points li{display:flex;gap:10px;font-size:14px;color:#EAF3EF;}
+
+  /* process */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:44px;counter-reset:step;}
+  @media(max-width:900px){.steps{grid-template-columns:1fr 1fr;}}
+  @media(max-width:560px){.steps{grid-template-columns:1fr;}}
+  .step{border-top:2px solid var(--border-strong);padding-top:16px;}
+  .step-num{font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--gold-ui);}
+  .step h3{margin-top:8px;}
+  .step p{margin-top:8px;font-size:14px;color:var(--text-secondary);}
+
+  /* faq */
+  .faq-list{margin-top:36px;border-top:1px solid var(--border);}
+  details{border-bottom:1px solid var(--border);padding:18px 0;}
+  summary{cursor:pointer;font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+  summary::-webkit-details-marker{display:none;}
+  summary .chev{transition:transform .2s ease;flex-shrink:0;}
+  details[open] summary .chev{transform:rotate(45deg);}
+  details p{margin-top:12px;font-size:15px;color:var(--text-secondary);max-width:70ch;}
+
+  /* contact / footer */
+  .cta-band{background:var(--emerald);color:#F4F6F2;border-radius:28px;padding:56px;text-align:left;}
+  .cta-band h2{color:inherit;font-size:clamp(24px,3vw,32px);text-wrap:balance;}
+  .cta-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;}
+  @media(max-width:860px){.cta-grid{grid-template-columns:1fr;}}
+  .contact-list{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:14px;}
+  .contact-list a{text-decoration:none;font-weight:600;}
+  .contact-list span{display:block;font-size:12px;color:#BFE3D7;text-transform:none;margin-bottom:2px;}
+
+  footer{padding:36px 0;border-top:1px solid var(--border);}
+  .footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--text-muted);}
+  .footer-links{display:flex;gap:18px;list-style:none;margin:0;padding:0;}
+  .footer-links a{text-decoration:none;}
+
+  .icon-check{color:var(--emerald);}
+
+  @media(max-width:480px){.nav-cta .btn{padding:11px 16px;font-size:14px;}}
+
+  .nav{position:relative;}
+  .menu-toggle{color:var(--text);cursor:pointer;}
+  .menu-toggle .mt-close{display:none;}
+  header.menu-open .menu-toggle .mt-open{display:none;}
+  header.menu-open .menu-toggle .mt-close{display:inline;}
+  @media(max-width:1179px){
+    .nav-links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--border);padding:6px 24px 14px;box-shadow:var(--shadow-soft);font-size:16px;}
+    header.menu-open .nav-links{display:flex;}
+    .nav-links li a{display:block;padding:14px 0;color:var(--text);border-top:1px solid var(--border);}
+    .nav-links li:first-child a{border-top:none;}
+    .nav-cta{gap:12px;}
+  }
+
+  @media(max-width:480px){.nav{gap:8px;padding:14px 20px;}.nav-cta{gap:8px;}.nav-cta .btn{padding:10px 14px;font-size:13px;}.logo{font-size:17px;}}
+
+  @media(max-width:340px){.nav-cta .btn{display:none;}}
+
+  .steps-band{background:#8C3A1C;color:#F4F6F2;border-radius:28px;padding:52px;}
+  .steps-band .eyebrow{color:#F6D9CC;}
+  .steps-band h2{color:inherit;}
+  .steps-band .step{border-top-color:rgba(244,246,242,.3);}
+  .steps-band .step p.step-num{color:#FFD25A;}
+  .steps-band .step h3{color:inherit;}
+  .steps-band .step p{color:#F6D9CC;}
+  .steps-band .step p a{color:#FFFFFF;}
+  @media(max-width:560px){.steps-band{padding:32px 24px;}}
+
+  .pkg-card.popular{border:2px solid var(--emerald);}
+  .pkg-badge.pop{background:var(--emerald);text-wrap:balance;text-align:center;white-space:normal;max-width:calc(100% - 40px);line-height:1.25;border-radius:16px;padding:6px 14px;top:-18px;}
+
+  .nav-links{gap:20px;font-size:13px;}
+  .nav-phone{display:none;}
+  .nav-cta .btn{padding:10px 18px;font-size:14px;}
+  .nav-links li.menu-only{display:none;}
+  @media(max-width:620px){
+    .nav-cta .hdr-anim{display:none;}
+    .nav-links li.menu-only{display:block;padding-top:14px;border-top:1px solid var(--border);}
+    .nav-links li.menu-only a.btn{display:flex;justify-content:center;width:100%;padding:13px 24px;color:#FFFFFF;background:var(--emerald);border:1px solid var(--emerald);}
+  }
+
+  @media(max-width:380px){.nav-cta .btn{padding:9px 12px;font-size:12.5px;}.nav-cta{gap:6px;}}
+
+  .nav-links a{white-space:nowrap;}
+  .nav-links{gap:18px;}
+
+  @media(max-width:1179px){.nav-links{gap:0;font-size:16px;}}
+
+  .res-hero{padding:56px 0 24px;}
+  .res-hero h1{max-width:20ch;text-wrap:balance;}
+  .res-hero p.lede{font-size:18px;color:var(--text-secondary);margin-top:16px;max-width:56ch;}
+  .res-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:32px;align-items:start;padding-bottom:88px;}
+  @media(max-width:960px){.res-grid{grid-template-columns:1fr;}}
+  .res-form{display:grid;gap:20px;}
+  .res-step{background:var(--bg-elevated);border:1px solid var(--border);border-radius:24px;padding:28px;box-shadow:var(--shadow-soft);border-left:1px solid var(--border);}
+  .res-step legend{padding:0;float:left;width:100%;}
+  .res-step legend + *{clear:both;}
+  .step-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .step-badge{width:30px;height:30px;border-radius:50%;background:var(--emerald);color:#fff;font-family:var(--font-head);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-head h2{font-size:22px;}
+  .picks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media(max-width:700px){.picks{grid-template-columns:1fr;}}
+  .pick{position:relative;display:block;cursor:pointer;}
+  .pick input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .pick-body{display:block;border:2px solid var(--border-strong);border-radius:16px;padding:16px;height:100%;background:var(--bg);}
+  .pick input:focus-visible + .pick-body{outline:3px solid var(--emerald);outline-offset:2px;}
+  .pick input:checked + .pick-body{border-color:var(--gold-ui);background:color-mix(in srgb, var(--gold) 8%, var(--bg-elevated));}
+  .pick-name{display:block;font-family:var(--font-head);font-weight:600;font-size:18px;}
+  .pick-price{display:block;font-family:var(--font-head);font-weight:700;font-size:24px;margin-top:4px;}
+  .pick-price small{font-family:var(--font-body);font-weight:400;font-size:12px;color:var(--text-muted);}
+  .pick-desc{display:block;font-size:13px;color:var(--text-secondary);margin-top:8px;line-height:1.5;}
+  .extras{display:grid;gap:4px;}
+  .extra{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border);cursor:pointer;}
+  .extra:first-child{border-top:none;}
+  .extra input{width:20px;height:20px;accent-color:var(--emerald);flex-shrink:0;margin:0;}
+  .extra .e-label{flex:1;font-size:15px;}
+  .extra .e-price{font-weight:600;font-size:15px;white-space:nowrap;}
+  .extra .e-incl{display:none;font-size:12px;font-weight:600;color:var(--emerald);background:color-mix(in srgb, var(--emerald) 12%, transparent);padding:3px 10px;border-radius:100px;}
+  .extra.included .e-price{display:none;}
+  .extra.included .e-incl{display:inline-block;}
+  .extra.included{opacity:.75;cursor:default;}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:700px){.fields{grid-template-columns:1fr;}}
+  .field{display:grid;gap:6px;}
+  .field.full{grid-column:1/-1;}
+  .field label,.field .lbl{font-size:14px;font-weight:600;}
+  .field .opt{font-weight:400;color:var(--text-muted);}
+  .field input,.field select,.field textarea{font-family:var(--font-body);font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--border-strong);border-radius:12px;padding:12px 14px;width:100%;}
+  .field textarea{min-height:96px;resize:vertical;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:3px solid color-mix(in srgb, var(--emerald) 40%, transparent);border-color:var(--emerald);}
+  .field .hint{font-size:13px;color:var(--text-muted);}
+  .paylist{display:grid;gap:4px;}
+  .pay{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border);cursor:pointer;font-size:15px;}
+  .pay:first-child{border-top:none;}
+  .pay input{width:20px;height:20px;accent-color:var(--emerald);margin:0;flex-shrink:0;}
+  .pay-note{font-size:13px;color:var(--text-secondary);margin-top:14px;line-height:1.6;}
+  .res-summary{position:sticky;top:96px;background:var(--emerald);color:#F4F6F2;border-radius:24px;padding:28px;}
+  @media(max-width:960px){.res-summary{position:static;}}
+  .res-summary h2{font-size:22px;color:inherit;}
+  .sum-lines{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:10px;font-size:15px;}
+  .sum-lines li{display:flex;justify-content:space-between;gap:12px;}
+  .sum-lines li span:first-child{color:#D9EAE4;}
+  .sum-lines .sub{border-top:1px solid rgba(244,246,242,.25);padding-top:10px;}
+  .sum-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:16px;border-top:1px solid rgba(244,246,242,.25);}
+  .sum-total span:first-child{font-weight:600;}
+  .sum-total b{font-family:var(--font-head);font-size:32px;font-weight:700;}
+  .sum-deposit{margin-top:14px;background:rgba(244,246,242,.12);border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.6;color:#E8F2EE;}
+  .sum-empty{margin-top:14px;color:#D9EAE4;font-size:15px;}
+  .res-summary .btn{width:100%;justify-content:center;margin-top:18px;font-size:16px;padding:15px 24px;}
+  .res-summary .small{font-size:12px;color:#BFE3D7;margin-top:12px;line-height:1.5;}
+  .form-error{display:none;margin-top:14px;background:#FFF1EC;color:#8A2D10;border:1px solid #F2B7A3;border-radius:12px;padding:12px 14px;font-size:14px;}
+  .form-error.show{display:block;}
+  .hp{position:absolute;left:-9999px;}
+  .success{display:none;background:var(--bg-elevated);border:2px solid var(--emerald);border-radius:24px;padding:36px;box-shadow:var(--shadow-soft);max-width:720px;margin:0 auto 88px;}
+  .success.show{display:block;}
+  .success h2{font-size:28px;}
+  .success p{margin-top:12px;color:var(--text-secondary);}
+  .success .actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px;}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border-strong);}
+
+  /* Téléphone: logo + menu sur la 1re ligne, les deux boutons côte à côte sur la 2e */
+  @media(max-width:620px){
+    .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 20px 12px;align-items:center;}
+    .nav > nav{display:contents;}
+    .nav .logo{grid-column:1;grid-row:1;justify-self:start;}
+    .nav-cta{display:contents;}
+    .nav-cta .menu-toggle{grid-column:2;grid-row:1;justify-self:end;}
+    .nav-cta .btn-primary{grid-column:1;grid-row:2;display:inline-flex;}
+    .nav-cta .hdr-anim{grid-column:2;grid-row:2;display:inline-flex;}
+    .nav-cta .btn{width:100%;justify-content:center;text-align:center;white-space:normal;line-height:1.2;padding:11px 8px;font-size:13.5px;}
+    .nav-links li.menu-only{display:none;}
+  }
+
+  .field input[type="checkbox"]{width:20px;height:20px;padding:0;margin:0;flex-shrink:0;accent-color:var(--emerald);}
+
+  html{scroll-padding-top:92px;}
+  @media(max-width:620px){
+    html{scroll-padding-top:112px;}
+    .nav{padding:8px 20px 10px;gap:6px 8px;}
+    .nav-cta .btn{padding:9px 8px;}
+    .nav-cta .menu-toggle{width:36px;height:36px;}
+  }
+
+  .logo{align-items:center;gap:10px;font-size:22px;}
+  .logo-mark{width:36px;height:36px;flex-shrink:0;display:block;}
+  @media(max-width:480px){.logo{font-size:18px;gap:8px;}.logo-mark{width:30px;height:30px;}}
+
+  header .wrap.nav{max-width:1240px;}
+</style>
+<link rel="canonical" href="https://showpac.com/reservation.html">
+<meta name="theme-color" content="#F7F5F1">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_CA">
+<meta property="og:site_name" content="ShowPAC">
+<meta property="og:title" content="Réserver un forfait karaoké | ShowPAC">
+<meta property="og:description" content="Réservez votre système karaoké ou votre animateur dans le Grand Montréal&nbsp;: choisissez votre forfait, ajoutez vos extras et voyez le total tout de suite.">
+<meta property="og:url" content="https://showpac.com/reservation.html">
+<meta property="og:image" content="https://showpac.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ShowPAC — location de karaoké et animation dans le Grand Montréal">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html" aria-label="ShowPAC, retour à l’accueil" style="text-decoration:none;"><svg class="logo-mark" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="26" fill="#E2572B"/><rect x="34" y="14" width="28" height="38" rx="14" fill="#F7F5F1"/><line x1="40" y1="26" x2="56" y2="26" stroke="#E2572B" stroke-width="2.6" stroke-linecap="round"/><line x1="40" y1="34" x2="56" y2="34" stroke="#E2572B" stroke-width="2.6" stroke-linecap="round"/><path d="M25 40 a23 23 0 0 0 46 0" fill="none" stroke="#F7F5F1" stroke-width="5" stroke-linecap="round"/><line x1="48" y1="63" x2="48" y2="76" stroke="#F7F5F1" stroke-width="5" stroke-linecap="round"/><line x1="35" y1="78" x2="61" y2="78" stroke="#F7F5F1" stroke-width="5" stroke-linecap="round"/><polygon points="0,-1 0.247,-0.34 0.951,-0.309 0.399,0.13 0.588,0.809 0,0.42 -0.588,0.809 -0.399,0.13 -0.951,-0.309 -0.247,-0.34" fill="#F2B705" transform="translate(77 19) scale(10)"/></svg><span>Show<em>PAC</em></span></a>
+    <nav>
+      <ul class="nav-links" id="navLinks" onclick="if(event.target.closest('a')){var h=this.closest('header');h.classList.remove('menu-open');document.getElementById('menuToggle').setAttribute('aria-expanded','false');}">
+        <li><a href="index.html#forfaits">Forfaits</a></li>
+        <li><a href="index.html#animation">Animation DJ/Karaoké</a></li>
+        <li><a href="repertoire.html">Répertoire</a></li>
+        <li><a href="index.html#histoire">Notre histoire</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li class="menu-only"><a class="btn btn-secondary" href="soumission-animation.html">Faire animer ma soirée</a></li>
+      </ul>
+    </nav>
+    <div class="nav-cta">
+      <a class="nav-phone" href="tel:+14506995914">(450) 699-5914</a>
+      <a class="btn btn-primary" href="reservation.html">Réserver mon karaoké</a>
+      <a class="btn btn-secondary hdr-anim" href="soumission-animation.html">Faire animer ma soirée</a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navLinks" onclick="var o=this.closest('header').classList.toggle('menu-open');this.setAttribute('aria-expanded',o?'true':'false');"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path class="mt-open" d="M4 7h16M4 12h16M4 17h16"/><path class="mt-close" d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="res-hero">
+    <div class="wrap">
+      <p class="eyebrow">Réservation</p>
+      <h1>Réservez votre soirée en quelques minutes.</h1>
+      <p class="lede">Choisissez votre forfait, ajoutez ce qu’il vous faut et voyez le total tout de suite. Pierre confirme votre date par courriel ou par téléphone.</p>
+    </div>
+  </section>
+
+  <div class="wrap res-grid" id="resGrid">
+    <form id="resForm" class="res-form" name="reservation" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <input type="hidden" name="form-name" value="reservation">
+      <p class="hp"><label>Ne pas remplir&nbsp;: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <input type="hidden" name="resume" id="fResume">
+      <input type="hidden" name="total_estime" id="fTotal">
+
+      <fieldset class="res-step" style="margin:0;">
+        <legend class="step-head"><span class="step-badge">1</span><h2>Votre forfait</h2></legend>
+        <div class="picks">
+          <label class="pick"><input type="radio" name="forfait" value="cle" data-price="219" data-label="Clé en main" required><span class="pick-body"><span class="pick-name">Clé en main</span><span class="pick-price">219&nbsp;$ <small>+ taxes</small></span><span class="pick-desc">Écran 20 po, enceinte 100 W, livraison et installation. Idéal pour un petit groupe.</span></span></label>
+          <label class="pick"><input type="radio" name="forfait" value="party" data-price="299" data-label="Party PAC"><span class="pick-body"><span class="pick-name">Party PAC</span><span class="pick-price">299&nbsp;$ <small>+ taxes</small></span><span class="pick-desc">Console audio 320 W Bluetooth, 2 micros sans fil et 1&nbsp;500 chansons pour danser.</span></span></label>
+          <label class="pick"><input type="radio" name="forfait" value="corpo" data-price="499" data-label="Corporatif"><span class="pick-body"><span class="pick-name">Corporatif</span><span class="pick-price">499&nbsp;$ <small>+ taxes</small></span><span class="pick-desc">Projecteur et écran 72 po, 2 enceintes 320 W, effet de lumière. Groupes de 50 à 200 personnes.</span></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="res-step" style="margin:0;">
+        <legend class="step-head"><span class="step-badge">2</span><h2>Ajoutez ce qu’il vous faut</h2></legend>
+        <div class="extras" id="extras">
+          <label class="extra" data-incl="party,corpo"><input type="checkbox" name="extras" value="Deux micros sans fil" data-key="micros2" data-price="35"><span class="e-label">Deux microphones sans fil avec émetteur/récepteur</span><span class="e-price">35&nbsp;$</span><span class="e-incl">Inclus</span></label>
+          <label class="extra" data-incl="party,corpo"><input type="checkbox" name="extras" value="Super tablette 1 500 hits" data-key="tablette1500" data-price="49"><span class="e-label">Super tablette avec 1&nbsp;500 chansons pour danser</span><span class="e-price">49&nbsp;$</span><span class="e-incl">Inclus</span></label>
+          <label class="extra" data-incl="corpo"><input type="checkbox" name="extras" value="Projecteur multimédia" data-key="projecteur" data-price="50"><span class="e-label">Projecteur multimédia</span><span class="e-price">50&nbsp;$</span><span class="e-incl">Inclus</span></label>
+          <label class="extra" data-incl="corpo"><input type="checkbox" name="extras" value="Écran de 72 po" data-key="ecran72" data-price="15"><span class="e-label">Écran de 72 po</span><span class="e-price">15&nbsp;$</span><span class="e-incl">Inclus</span></label>
+          <label class="extra"><input type="checkbox" name="extras" value="Haut-parleur 320 W extra" data-key="hp320" data-price="49"><span class="e-label">Haut-parleur 320 W supplémentaire</span><span class="e-price">49&nbsp;$</span></label>
+          <label class="extra"><input type="checkbox" name="extras" value="Haut-parleur 500 W extra" data-key="hp500" data-price="64"><span class="e-label">Haut-parleur 500 W supplémentaire</span><span class="e-price">64&nbsp;$</span></label>
+          <label class="extra"><input type="checkbox" name="extras" value="Tablette 7 po extra" data-key="tablette7" data-price="10"><span class="e-label">Tablette de 7 po supplémentaire</span><span class="e-price">10&nbsp;$</span></label>
+          <label class="extra"><input type="checkbox" name="extras" value="Microphone extra" data-key="micro" data-price="5"><span class="e-label">Microphone supplémentaire</span><span class="e-price">5&nbsp;$</span></label>
+          <label class="extra"><input type="checkbox" name="extras" value="Mini mélangeur audio avec préampli" data-key="melangeur" data-price="10"><span class="e-label">Mini mélangeur audio avec préamplificateur</span><span class="e-price">10&nbsp;$</span></label>
+          <label class="extra"><input type="checkbox" name="extras" value="Adaptateur audio 3/16" data-key="adaptateur" data-price="5"><span class="e-label">Adaptateur audio 3/16 pour connecter vos appareils</span><span class="e-price">5&nbsp;$</span></label>
+          <label class="extra"><input type="checkbox" name="assurance" value="oui" id="assur"><span class="e-label">Protection Tranquillité <span style="color:var(--text-muted);">(10&nbsp;% du sous-total)</span><span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">Profitez de la soirée sans vous soucier du matériel&nbsp;: les bris accidentels sont couverts, comme un micro échappé. <span style="color:var(--text-muted);font-style:italic;">Vol, perte et dommages intentionnels exclus.</span></span></span><span class="e-price" id="assurPrice" style="font-weight:500;color:var(--text-secondary);">+ 10&nbsp;%</span></label>
+          <div class="extra" style="cursor:default;padding-left:32px;"><span class="e-label">Vous aimeriez que Pierre anime votre soirée&nbsp;?</span><a class="e-price" href="soumission-animation.html" style="color:var(--emerald);text-decoration:underline;">Demander une soumission</a></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="res-step" style="margin:0;">
+        <legend class="step-head"><span class="step-badge">3</span><h2>Votre événement</h2></legend>
+        <div class="fields">
+          <div class="field"><label for="date">Date de l’événement</label><input type="date" id="date" name="date_evenement" required><span class="hint" id="dateMsg" style="color:#8A2D10;display:none;">Cette date est complète. Choisissez-en une autre.</span></div>
+          <div class="field"><label for="invites">Nombre d’invités <span class="opt">(approximatif)</span></label><input type="number" id="invites" name="nb_invites" min="1" inputmode="numeric" placeholder="Ex.&nbsp;: 60"></div>
+          <div class="field"><label for="type">Type d’événement</label><select id="type" name="type_evenement"><option value="">Choisir…</option><option>Entreprise</option><option>Mariage</option><option>Fête privée</option><option>École ou activité scolaire</option><option>Autre</option></select></div>
+          <div class="field full"><label for="rue">Adresse de livraison</label><input type="text" id="rue" name="rue" autocomplete="address-line1" placeholder="Numéro et rue" required></div>
+          <div class="field"><label for="ville">Ville</label><input type="text" id="ville" name="ville" autocomplete="address-level2" required></div>
+          <div class="field"><label for="cp">Code postal</label><input type="text" id="cp" name="code_postal" autocomplete="postal-code" placeholder="H0H 0H0" maxlength="7" autocapitalize="characters" pattern="[A-Za-z][0-9][A-Za-z][ \-]?[0-9][A-Za-z][0-9]" title="Format du code postal&nbsp;: H0H 0H0" required></div>
+          <input type="hidden" id="adresse" name="adresse_livraison">
+          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Livraison et installation gratuites à moins de 25&nbsp;km de Châteauguay. Plus loin, Pierre vous confirme ce qui s’applique.</span>
+          <div class="field full"><label for="infos">Informations supplémentaires <span class="opt">(facultatif)</span></label><textarea id="infos" name="infos" placeholder="Équipement particulier, accès à la salle, installation, cueillette…"></textarea></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="res-step" style="margin:0;">
+        <legend class="step-head"><span class="step-badge">4</span><h2>Vos coordonnées</h2></legend>
+        <div class="fields">
+          <div class="field"><label for="nom">Votre nom</label><input type="text" id="nom" name="nom" autocomplete="name" required></div>
+          <div class="field"><label for="entreprise">Nom d’entreprise <span class="opt">(si applicable)</span></label><input type="text" id="entreprise" name="entreprise" autocomplete="organization"></div>
+          <div class="field"><label for="courriel">Courriel</label><input type="email" id="courriel" name="courriel" autocomplete="email" required></div>
+          <div class="field"><label for="tel">Téléphone</label><input type="tel" id="tel" name="telephone" autocomplete="tel" required></div>
+          <div class="field full"><label for="facturation">Adresse de facturation <span class="opt">(si différente)</span></label><input type="text" id="facturation" name="adresse_facturation" autocomplete="billing street-address"></div>
+          <div class="field full"><label class="extra" style="border-top:none;padding:6px 0;"><input type="checkbox" name="facturer_solde" value="oui" id="factSolde"><span class="e-label">Facturer le solde à mon entreprise <span style="color:var(--text-muted);">(le dépôt de 50&nbsp;$ reste payable en ligne ou par Interac)</span></span></label><span class="hint" id="factHint" style="display:none;">Si vous le pouvez, indiquez le nom de l’entreprise et l’adresse de facturation ci-dessus. Sinon, Pierre vous les demandera avant de vous envoyer la facture.</span></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="res-step" style="margin:0;">
+        <legend class="step-head"><span class="step-badge">5</span><h2>Paiement</h2></legend>
+        <div class="paylist">
+          <label class="pay"><input type="radio" name="mode_paiement" value="acompte" required><span><b>Payer le dépôt de 50&nbsp;$ en ligne</b> <span style="font-size:12px;font-weight:600;color:var(--emerald);background:color-mix(in srgb, var(--emerald) 12%, transparent);padding:2px 8px;border-radius:100px;margin-left:4px;">Recommandé</span> <span style="color:var(--text-muted);font-size:13px;">(carte, via Square). Votre date est réservée tout de suite. Le solde se règle plus tard.</span></span></label>
+          <label class="pay"><input type="radio" name="mode_paiement" value="total"><span><b>Payer le total en ligne</b> <span style="color:var(--text-muted);font-size:13px;">(carte, via Square, frais administratifs de 3&nbsp;%). Votre date est réservée tout de suite.</span></span></label>
+          <label class="pay"><input type="radio" name="mode_paiement" value="interac"><span><b>Dépôt de 50&nbsp;$ par virement Interac</b> <span style="color:var(--text-muted);font-size:13px;">(Pierre confirme d’abord votre date, puis vous envoie les instructions)</span></span></label>
+        </div>
+        <p class="pay-note">Un dépôt de 50&nbsp;$ est exigé pour réserver l’équipement. Le solde est payable à l’avance ou à la livraison. Le dépôt est sans frais&nbsp;; des frais administratifs de 3&nbsp;% s’appliquent au solde payé par carte de crédit.</p>
+      </fieldset>
+    </form>
+
+    <aside class="res-summary" aria-live="polite">
+      <h2>Votre réservation</h2>
+      <p class="sum-empty" id="sumEmpty">Choisissez un forfait pour voir le total.</p>
+      <ul class="sum-lines" id="sumLines" hidden></ul>
+      <div class="sum-total" id="sumTotal" hidden><span>Total estimé</span><b id="sumTotalVal">0&nbsp;$</b></div>
+      <div class="sum-deposit" id="sumDeposit" hidden></div>
+      <div class="form-error" id="formError" role="alert"></div>
+      <button class="btn btn-primary" type="submit" form="resForm" id="submitBtn">Continuer</button>
+      <p class="small" id="payHint">Choisissez votre mode de paiement à l’étape 5.</p>
+    </aside>
+  </div>
+
+  <section class="section-tight" id="ensuite">
+    <div class="wrap">
+      <div class="steps-band">
+        <p class="eyebrow">Et ensuite?</p>
+        <h2>Voici ce qui se passe après votre réservation.</h2>
+        <div class="steps">
+          <div class="step">
+            <p class="step-num">01</p>
+            <h3>Vous réservez</h3>
+            <p>Payez le dépôt de 50&nbsp;$ en ligne et votre date est réservée tout de suite. Vous préférez Interac? Pierre confirme d’abord votre date.</p>
+          </div>
+          <div class="step">
+            <p class="step-num">02</p>
+            <h3>Vous préparez la soirée</h3>
+            <p>On confirme la salle et l’horaire. Vous pouvez aussi choisir vos chansons à l’avance, jusqu’à 50, depuis le <a href="repertoire.html" style="text-decoration:underline;">répertoire</a>.</p>
+          </div>
+          <div class="step">
+            <p class="step-num">03</p>
+            <h3>On livre et on installe</h3>
+            <p>Notre équipe arrive avant vos invités, installe le matériel et teste le son.</p>
+          </div>
+          <div class="step">
+            <p class="step-num">04</p>
+            <h3>Vous êtes la vedette</h3>
+            <p>Vous profitez de la soirée, avec ou sans animateur, pendant qu’on gère le reste.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="success" id="success" aria-live="polite">
+    <h2>Merci! Votre demande est envoyée.</h2>
+    <p>Pierre vérifie la disponibilité de votre date, puis vous écrit pour confirmer et vous envoyer les instructions du virement Interac de 50&nbsp;$. Sans nouvelles après 24&nbsp;h, appelez-nous au (450)&nbsp;699-5914 pendant nos heures d’ouverture.</p>
+    <p id="successSummary" style="white-space:pre-line;font-size:14px;background:var(--bg);border-radius:12px;padding:14px 16px;"></p>
+    <div class="actions">
+      <a class="btn btn-primary" href="index.html">Retour au site</a>
+    </div>
+    
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <p>© ShowPAC, une marque des Productions PAC. Tous droits réservés.</p>
+    <ul class="footer-links">
+      <li><a href="index.html#forfaits">Forfaits</a></li>
+      <li><a href="repertoire.html">Répertoire</a></li>
+      <li><a href="index.html#faq">FAQ</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var TAUX = 0.14975, ACOMPTE = 5000;
+  var form = document.getElementById('resForm');
+  var money = function(c){ return (c/100).toLocaleString('fr-CA',{style:'currency',currency:'CAD'}).replace(/\u00a0/g,' '); };
+  var pkgInputs = form.querySelectorAll('input[name="forfait"]');
+  var extraRows = document.querySelectorAll('#extras .extra[data-incl]');
+  var extraInputs = form.querySelectorAll('input[name="extras"]');
+  var assur = document.getElementById('assur'), djmc = document.getElementById('djmc') || {checked:false};
+  var el = {
+    empty: document.getElementById('sumEmpty'), lines: document.getElementById('sumLines'),
+    total: document.getElementById('sumTotal'), totalVal: document.getElementById('sumTotalVal'),
+    deposit: document.getElementById('sumDeposit'), err: document.getElementById('formError'),
+    resume: document.getElementById('fResume'), totalField: document.getElementById('fTotal'),
+    btn: document.getElementById('submitBtn'), hint: document.getElementById('payHint')
+  };
+  var dateInput = document.getElementById('date'), dateMsg = document.getElementById('dateMsg');
+  var blocked = {};
+  var t = new Date(); t.setMinutes(t.getMinutes()-t.getTimezoneOffset());
+  dateInput.min = t.toISOString().slice(0,10);
+
+  function selectedPkg(){ return form.querySelector('input[name="forfait"]:checked'); }
+  function mode(){ var c = form.querySelector('input[name="mode_paiement"]:checked'); return c ? c.value : ''; }
+
+  function calcul(){
+    var p = selectedPkg(); if (!p) return null;
+    var key = p.value;
+    var lines = [[p.getAttribute('data-label'), Math.round(parseFloat(p.getAttribute('data-price'))*100)]];
+    var keys = [];
+    extraInputs.forEach(function(i){
+      if (i.checked && !i.disabled){
+        lines.push([i.value, Math.round(parseFloat(i.getAttribute('data-price'))*100)]);
+        keys.push(i.getAttribute('data-key'));
+      }
+    });
+    var sub = lines.reduce(function(s,l){ return s + l[1]; }, 0);
+    var ass = assur.checked ? Math.round(sub*0.10) : 0;
+    var taxes = Math.round(sub*TAUX);
+    return { key:key, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
+  }
+
+  function update(){
+    var p = selectedPkg(), key = p ? p.value : null;
+    extraRows.forEach(function(row){
+      var inc = key && row.getAttribute('data-incl').split(',').indexOf(key) !== -1;
+      var inp = row.querySelector('input');
+      row.classList.toggle('included', !!inc);
+      inp.disabled = !!inc; if (inc) inp.checked = false;
+    });
+    var m = mode();
+    var fa = document.getElementById('factSolde');
+    document.getElementById('entreprise').required = false;
+    document.getElementById('facturation').required = false;
+    document.getElementById('factHint').style.display = fa.checked ? 'block' : 'none';
+    var c = calcul();
+    if (!c){
+      el.empty.hidden = false; el.lines.hidden = true; el.total.hidden = true; el.deposit.hidden = true;
+      el.resume.value = ''; el.totalField.value = '';
+    } else {
+      var html = c.lines.map(function(l){ return '<li><span>'+l[0]+'</span><span>'+money(l[1])+'</span></li>'; }).join('');
+      if (djmc.checked) html += '<li><span>DJ ou maître de cérémonie</span><span>Sur demande</span></li>';
+      html += '<li class="sub"><span>Sous-total</span><span>'+money(c.sub)+'</span></li>';
+      if (c.ass) html += '<li><span>Protection Tranquillité (10 %)</span><span>'+money(c.ass)+'</span></li>';
+      html += '<li><span>Taxes (TPS + TVQ)</span><span>'+money(c.taxes)+'</span></li>';
+      html += '<li><span>Livraison, installation et récupération (25 km et moins)</span><span>Incluses</span></li>';
+      var fraisCarte = (m === 'total') ? Math.round(c.total*0.03) : 0;
+      if (fraisCarte) html += '<li><span>Frais administratifs (3 %)</span><span>'+money(fraisCarte)+'</span></li>';
+      c.payable = c.total + fraisCarte;
+      el.lines.innerHTML = html;
+      el.totalVal.textContent = money(c.payable);
+      el.deposit.innerHTML = 'Dépôt à la réservation\u00a0: <b>'+money(ACOMPTE)+'</b><br>Solde estimé\u00a0: <b>'+money(Math.max(0,c.total-ACOMPTE))+'</b>';
+      el.empty.hidden = true; el.lines.hidden = false; el.total.hidden = false; el.deposit.hidden = false;
+      var txt = c.lines.map(function(l){ return '- '+l[0]+'\u00a0: '+money(l[1]); });
+      if (djmc.checked) txt.push('- DJ ou maître de cérémonie\u00a0: prix sur demande');
+      txt.push('Sous-total\u00a0: '+money(c.sub));
+      if (c.ass) txt.push('Protection Tranquillité (10 %)\u00a0: '+money(c.ass));
+      if (fraisCarte) txt.push('Frais administratifs (3 %)\u00a0: '+money(fraisCarte));
+      txt.push('Taxes estimées\u00a0: '+money(c.taxes), 'Total estimé\u00a0: '+money(c.payable), 'Dépôt\u00a0: '+money(ACOMPTE), 'Solde estimé\u00a0: '+money(Math.max(0,c.total-ACOMPTE)));
+      txt.push('Mode de paiement\u00a0: ' + (m==='acompte' ? 'dépôt en ligne (Square)' : m==='total' ? 'total en ligne (Square)' : (m==='interac' ? 'dépôt par virement Interac' : 'à choisir')));
+      if (fa.checked) txt.push("Solde\u00a0: facturé à l’entreprise "+(form.entreprise.value||'(à préciser)'));
+      el.resume.value = txt.join('\n'); el.totalField.value = money(c.payable);
+    }
+    if (m === 'acompte'){ el.btn.textContent = 'Payer le dépôt de 50 $'; el.hint.textContent = "Vous serez redirigé vers la page de paiement sécurisée de Square. Votre date est réservée dès que le paiement est reçu."; }
+    else if (m === 'total'){ el.btn.textContent = c ? 'Payer ' + money(c.payable) : 'Payer le total'; el.hint.textContent = "Vous serez redirigé vers la page de paiement sécurisée de Square. Votre date est réservée dès que le paiement est reçu."; }
+    else if (m === 'interac'){ el.btn.textContent = 'Envoyer ma demande'; el.hint.textContent = "Aucun paiement n’est demandé maintenant. Pierre confirme d’abord votre date, puis vous envoie les instructions pour le virement Interac de 50 $. Sans nouvelles après 24 h, appelez-nous au (450) 699-5914."; }
+    else { el.btn.textContent = 'Continuer'; el.hint.textContent = "Choisissez votre mode de paiement à l’étape 5."; }
+    return c;
+  }
+
+
+  function disableOnline(){
+    ['acompte','total'].forEach(function(v){
+      var r = form.querySelector('input[name="mode_paiement"][value="'+v+'"]'); if (!r) return;
+      r.checked = false; r.disabled = true; var l = r.closest('label'); if (l) l.style.display = 'none';
+    });
+    var i = form.querySelector('input[name="mode_paiement"][value="interac"]'); if (i) i.checked = true;
+    var note = document.querySelector('.pay-note');
+    if (note) note.textContent = "Un dépôt de 50 $ est exigé pour réserver l’équipement. Pierre confirme d’abord votre date, puis vous envoie les instructions du virement Interac.";
+    update();
+  }
+
+  function checkDate(){
+    var v = dateInput.value, full = v && blocked[v];
+    dateInput.setCustomValidity(full ? 'Cette date est complète. Choisissez-en une autre.' : '');
+    dateMsg.style.display = full ? 'block' : 'none';
+  }
+  fetch('/.netlify/functions/disponibilites').then(function(r){ return r.json(); }).then(function(j){
+    (j.bloquees || []).forEach(function(d){ blocked[d] = true; }); checkDate();
+    if (j.paiement === false) disableOnline();
+  }).catch(function(){});
+  dateInput.addEventListener('change', checkDate);
+  dateInput.addEventListener('input', checkDate);
+
+  var rueEl = document.getElementById('rue'), villeEl = document.getElementById('ville'), cpEl = document.getElementById('cp'), adrEl = document.getElementById('adresse');
+  function fmtCp(v){ return v.trim().toUpperCase().replace(/^([A-Z]\d[A-Z])[ -]?(\d[A-Z]\d)$/, '$1 $2'); }
+  function syncAdresse(){ adrEl.value = [rueEl.value.trim(), villeEl.value.trim(), fmtCp(cpEl.value)].filter(Boolean).join(', '); }
+  [rueEl, villeEl, cpEl].forEach(function(e){ e.addEventListener('input', syncAdresse); });
+  cpEl.addEventListener('blur', function(){ cpEl.value = fmtCp(cpEl.value); syncAdresse(); });
+  form.addEventListener('change', update);
+  var qs = new URLSearchParams(location.search).get('forfait');
+  if (qs){ var pre = form.querySelector('input[name="forfait"][value="'+qs+'"]'); if (pre) pre.checked = true; }
+  update();
+
+  function showError(msg){ el.err.innerHTML = msg; el.err.classList.add('show'); el.err.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  function resetBtn(){ el.btn.disabled = false; update(); }
+
+  function postForm(){
+    var data = new URLSearchParams(new FormData(form)).toString();
+    return fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data}).then(function(res){ if(!res.ok) throw new Error('http'); });
+  }
+  function mailtoFallback(c,label){
+    var body = encodeURIComponent('Nom\u00a0: '+form.nom.value+'\nTéléphone: '+form.telephone.value+'\nDate: '+form.date_evenement.value+'\nAdresse de livraison: '+form.adresse_livraison.value+'\n\n'+(c?el.resume.value:''));
+    return '<a href="mailto:info@showpac.com?subject='+encodeURIComponent('Demande de réservation')+'&body='+body+'" style="text-decoration:underline;font-weight:600;">'+(label||'Envoyez-la par courriel')+'</a>';
+  }
+  function done(){
+    document.getElementById('resGrid').style.display = 'none';
+    document.querySelector('.res-hero').style.display = 'none';
+    var s = document.getElementById('success'); s.classList.add('show');
+    document.getElementById('successSummary').textContent = 'Date\u00a0: '+form.date_evenement.value+'\n'+el.resume.value;
+    s.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    syncAdresse();
+    el.err.classList.remove('show');
+    if (!selectedPkg()){ showError("Choisissez d’abord un forfait (étape 1)."); document.querySelector('.picks').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+    if (!mode()){ showError('Choisissez votre mode de paiement (étape 5).'); return; }
+    checkDate();
+    if (!form.reportValidity()) return;
+    var c = update(), m = mode();
+    el.btn.disabled = true; el.btn.textContent = 'Un instant…';
+
+    if (m === 'interac'){
+      postForm().then(function(){ done(); }).catch(function(){
+        resetBtn();
+        showError("Votre demande n’a pas pu être envoyée automatiquement. "+mailtoFallback(c)+' ou appelez Pierre au (450)&nbsp;699-5914.');
+      });
+      return;
+    }
+
+    var payload = {
+      forfait: c.key, extras: c.keys, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
+      date: form.date_evenement.value, nom: form.nom.value, courriel: form.courriel.value, telephone: form.telephone.value,
+      facture: !!document.getElementById('factSolde').checked, entreprise: form.entreprise.value,
+      adresse: form.adresse_livraison.value, invites: form.nb_invites.value, type: form.type_evenement.value
+    };
+    fetch('/.netlify/functions/creer-paiement', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+      .then(function(res){ return res.json().then(function(j){ return {status:res.status, body:j}; }); })
+      .then(function(r){
+        if (r.status === 200 && r.body.url){
+          var go = function(){ window.location.href = r.body.url; };
+          // On envoie aussi tous les détails à Pierre, puis on passe au paiement (au plus 4 s d’attente).
+          Promise.race([postForm(), new Promise(function(res){ setTimeout(res, 4000); })]).then(go, go);
+          return;
+        }
+        resetBtn();
+        if (r.status === 409){
+          blocked[payload.date] = true; checkDate();
+          showError("Cette date vient d’être réservée. Choisissez une autre date.");
+        } else {
+          showError("Le paiement en ligne n’a pas pu démarrer. Réessayez, "+mailtoFallback(c,'envoyez votre demande par courriel')+' ou appelez Pierre au (450)&nbsp;699-5914.');
+        }
+      })
+      .catch(function(){
+        resetBtn();
+        showError("Le paiement en ligne n’est pas disponible pour le moment. Choisissez «&nbsp;Dépôt par virement Interac&nbsp;», "+mailtoFallback(c,'envoyez votre demande par courriel')+' ou appelez Pierre au (450)&nbsp;699-5914.');
+      });
+  });
+})();
+
+</script>
+<script src="/chatbot.js" defer></script>
+</body>
+</html>
