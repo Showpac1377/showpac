@@ -64,7 +64,7 @@ export default async (req) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Location Karaoké Showpac <info@showpac.com>",
+   from: process.env.COURRIEL_EXPEDITEUR || "ShowPAC <info@showpac.com>",
       to: [m.courriel],
       bcc: [process.env.COURRIEL_COPIE || "info@showpac.com"],
       reply_to: "info@showpac.com",
