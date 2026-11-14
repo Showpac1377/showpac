@@ -48,6 +48,7 @@
   const css = `
 .spc-launch{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:9998;display:flex;align-items:center;gap:10px;padding:12px 18px 12px 14px;border:0;border-radius:999px;background:${C.emeraude};color:${C.papier};font:600 15px/1 var(--font-head,system-ui),sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(22,89,74,.35)}
 .spc-launch[hidden]{display:none}
+.spc-panel:focus{outline:none}
 .spc-launch svg{width:22px;height:22px;flex:none}
 .spc-launch:hover{filter:brightness(1.08)}
 .spc-launch:focus-visible,.spc-panel button:focus-visible,.spc-panel input:focus-visible,.spc-panel a:focus-visible{outline:3px solid ${C.or};outline-offset:2px}
@@ -245,7 +246,9 @@
   function open() {
     panel.hidden = false; launch.hidden = true; launch.setAttribute("aria-expanded", "true");
     if (!started) { started = true; showMenu(true); }
-    input.focus();
+    // Sur téléphone, pas de focus automatique : le clavier cacherait le menu.
+    if (!window.matchMedia("(pointer:coarse)").matches) input.focus();
+    else { panel.setAttribute("tabindex", "-1"); panel.focus({ preventScroll: true }); }
   }
   function close() { panel.hidden = true; launch.hidden = false; launch.setAttribute("aria-expanded", "false"); launch.focus(); }
   launch.addEventListener("click", open);
