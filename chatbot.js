@@ -22,16 +22,17 @@
     heures: "Lundi au vendredi : 9 h à 21 h\nSamedi : 10 h à 17 h\nDimanche : 11 h à 17 h",
     forfaits: [
       { id: "cle", nom: "Clé en main", prix: "219 $", details: "L’essentiel du karaoké : moniteur 20 po, enceinte 100 W pro et plus de 14 000 chansons. Idéal pour un petit groupe ou une soirée entre amis." },
-      { id: "party", nom: "Party PAC", prix: "299 $", details: "Tout le Clé en main, plus une console audio Bluetooth 320 W, 2 micros sans fil et 1 500 chansons pour danser. Notre forfait le plus polyvalent pour une fête à la maison." },
+      { id: "party", nom: "Party PAC", prix: "299 $", details: "Tout le Clé en main, plus une console audio Bluetooth 320 W, 2 micros sans fil et 1 500 chansons pour danser. Le mix parfait : karaoké et musique de danse dans un seul forfait." },
       { id: "corpo", nom: "Corporatif", prix: "499 $", details: "Tout le Party PAC, plus un projecteur avec écran 72 po, 2 enceintes 320 W et un effet de lumière. Pensé pour les salles de réception et les groupes de 50 à 200 personnes. Fonctionne en libre-service : vos invités gèrent la file d’attente avec l’application." },
     ],
-    livraison: "La livraison et l’installation sont gratuites à moins de 25 km de nos bureaux de Châteauguay. Notre équipe arrive avant vos invités, installe le matériel et teste le son. Plus loin? Appelez Pierre pour confirmer ce qui s’applique à votre adresse.",
-    animation: "Pierre anime votre soirée du début à la fin : maître de cérémonie, chanteur et DJ selon le moment, quiz et jeux, coordination avec le traiteur et la salle. À partir de 899 $. Un animateur peut aussi être ajouté à un forfait de location en tout temps.",
-    reserver: "Choisissez un forfait et remplissez le formulaire en ligne (date, adresse, extras) : le total s’affiche en direct. Payez le dépôt de 50 $ (ou le total) par carte et votre date est réservée tout de suite. Vous préférez un autre mode de paiement? Pierre confirme alors votre date.",
+    livraison: "La livraison, l’installation et la récupération du matériel sont incluses à 25 km et moins de nos bureaux de Châteauguay. Notre équipe arrive avant vos invités, installe le matériel et teste le son. Au-delà de 25 km : 0,60 $ par km additionnel, pour chacun des 4 trajets (aller et retour à la livraison, aller et retour à la récupération). Exemple : à 35 km, 10 km × 4 trajets × 0,60 $ = 24 $.",
+    animation: "Pierre anime votre soirée du début à la fin : maître de cérémonie, chanteur et DJ selon le moment, quiz et jeux, coordination avec le traiteur et la salle. Le prix dépend de votre événement : demandez une soumission gratuite, Pierre vous répond en 24 h. Un animateur peut aussi être ajouté à un forfait de location en tout temps.",
+    reserver: "Choisissez un forfait et remplissez le formulaire en ligne (date, adresse, extras) : le total s’affiche en direct. Payez le dépôt de 50 $ par carte, sans frais, et votre date est réservée tout de suite. Vous pouvez aussi payer le total en ligne (frais administratifs de 3 %), ou envoyer le dépôt par virement Interac : Pierre confirme alors votre date en 24 h.",
     // Ne mettez ici que des réponses confirmées par Pierre.
     faq: [
       { q: "Combien de temps d’avance réserver?", a: "Dès que votre date est fixée, surtout pour un événement d’entreprise en haute saison (novembre-décembre et mai-juin)." },
-      { q: "Faut-il un dépôt?", a: "Oui : 50 $ à la réservation, payable en ligne par carte. Vous pouvez aussi payer le total d’un coup." },
+      { q: "Faut-il un dépôt?", a: "Oui : 50 $ à la réservation, par carte en ligne (sans frais) ou par virement Interac. Le solde se règle à l’avance ou à la livraison. Le solde payé par carte de crédit comporte des frais administratifs de 3 %." },
+      { q: "Qu’est-ce que la Protection Tranquillité?", a: "Une option facultative à 10 % du sous-total : les bris accidentels pendant votre événement sont couverts, comme un micro échappé. Vol, perte et dommages intentionnels exclus." },
       { q: "Peut-on choisir nos chansons à l’avance?", a: "Oui. Dans le répertoire, ajoutez jusqu’à 50 chansons à votre liste et envoyez-la-nous par courriel en un clic." },
       { q: "Les chansons varient-elles selon le forfait?", a: "Non. Chaque forfait comprend le même lecteur avec plus de 14 000 titres franco et anglo. Le Party PAC et le Corporatif ajoutent 1 500 chansons pour danser." },
       { q: "Pour quels types d’événements?", a: "Soirées d’entreprise (5 à 7, soirées d’équipe, lancements, soupers de bureau, galas), mariages, fêtes de famille et activités scolaires." },
@@ -167,7 +168,7 @@
   function forfaits() {
     const ul = el("ul", "spc-prices");
     CONFIG.forfaits.forEach((f) => { const li = el("li"); li.append(el("span", null, f.nom), el("span", null, f.prix)); ul.appendChild(li); });
-    bot([txt("Nos trois forfaits (taxes en sus), livraison et installation gratuites à moins de 25 km de Châteauguay :"), ul]);
+    bot([txt("Nos trois forfaits (taxes en sus), livraison, installation et récupération incluses à 25 km et moins de Châteauguay :"), ul]);
     setChips([...CONFIG.forfaits.map((f) => [f.nom + " : c’est quoi?", () => detail(f)]), ["Réserver", reserver], ["Menu", () => showMenu()]]);
   }
   function detail(f) {
