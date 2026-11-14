@@ -74,7 +74,7 @@
 .spc-chips button{border:1.5px solid ${C.or};background:${C.papier};color:${C.encre};border-radius:999px;padding:8px 13px;font:500 14px/1.2 var(--font-body,system-ui),sans-serif;cursor:pointer;text-align:left}
 .spc-chips button:hover{background:${C.or};color:${C.papier}}
 .spc-form{display:flex;gap:8px;padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(23,26,32,.12);background:${C.papier}}
-.spc-form input{flex:1;min-width:0;border:1px solid rgba(30,38,34,.2);border-radius:10px;padding:10px 12px;font:15px/1.3 var(--font-body,system-ui),sans-serif;color:${C.encre};background:#fff}
+.spc-form input{flex:1;min-width:0;border:1px solid rgba(30,38,34,.2);border-radius:10px;padding:10px 12px;font:16px/1.3 var(--font-body,system-ui),sans-serif;color:${C.encre};background:#fff}
 .spc-form button{border:0;border-radius:10px;padding:0 16px;background:${C.emeraude};color:${C.papier};font:600 14px/1 var(--font-head,system-ui),sans-serif;cursor:pointer}
 .spc-new{animation:spcIn .18s ease-out}
 @keyframes spcIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
