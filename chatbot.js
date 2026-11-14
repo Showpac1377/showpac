@@ -96,7 +96,8 @@
   launch.type = "button";
   launch.setAttribute("aria-expanded", "false");
   launch.setAttribute("aria-controls", "spc-panel");
-  launch.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg><span>Une question?</span>';
+  launch.setAttribute("aria-label", "Une question? Ouvrir le clavardage");
+  launch.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h-0A1.5 1.5 0 0 1 4 14.5z"/><circle cx="8.5" cy="9.5" r="0.9" fill="currentColor" stroke="none"/><circle cx="12" cy="9.5" r="0.9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="9.5" r="0.9" fill="currentColor" stroke="none"/></svg><span>Une question?</span>';
 
   const panel = el("section", "spc-panel");
   panel.id = "spc-panel";
