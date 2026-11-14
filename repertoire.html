@@ -155,7 +155,7 @@
   .clear-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:19px;line-height:1;padding:2px 6px;display:none;}
   .clear-btn.show{display:block;}
 
-  .sort-wrap{display:flex;align-items:center;gap:10px;}
+  .sort-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .sort-label{font-size:13.5px;color:var(--text-muted);white-space:nowrap;}
   .sort-tabs{display:flex;gap:4px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:100px;padding:4px;box-shadow:var(--shadow-soft);}
   .sort-tabs button{
@@ -405,6 +405,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="ShowPAC — location de karaoké et animation dans le Grand Montréal">
 <meta name="twitter:card" content="summary_large_image">
+<style id="anti-debordement">html,body{overflow-x:clip;max-width:100%}@supports not (overflow:clip){body{overflow-x:hidden}}fieldset{min-width:0}img,svg,video{max-width:100%}</style>
 </head>
 <body>
 

@@ -245,7 +245,7 @@
   .res-hero h1{max-width:20ch;text-wrap:balance;}
   .res-hero p.lede{font-size:18px;color:var(--text-secondary);margin-top:16px;max-width:56ch;}
   .res-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:32px;align-items:start;padding-bottom:88px;}
-  @media(max-width:960px){.res-grid{grid-template-columns:1fr;}}
+  @media(max-width:960px){.res-grid{grid-template-columns:minmax(0,1fr);}}
   .res-form{display:grid;gap:20px;}
   .res-step{background:var(--bg-elevated);border:1px solid var(--border);border-radius:24px;padding:28px;box-shadow:var(--shadow-soft);border-left:1px solid var(--border);}
   .res-step legend{padding:0;float:left;width:100%;}
@@ -254,7 +254,7 @@
   .step-badge{width:30px;height:30px;border-radius:50%;background:var(--emerald);color:#fff;font-family:var(--font-head);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .step-head h2{font-size:22px;}
   .picks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-  @media(max-width:700px){.picks{grid-template-columns:1fr;}}
+  @media(max-width:700px){.picks{grid-template-columns:minmax(0,1fr);}}
   .pick{position:relative;display:block;cursor:pointer;}
   .pick input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
   .pick-body{display:block;border:2px solid var(--border-strong);border-radius:16px;padding:16px;height:100%;background:var(--bg);}
@@ -264,11 +264,11 @@
   .pick-price{display:block;font-family:var(--font-head);font-weight:700;font-size:24px;margin-top:4px;}
   .pick-price small{font-family:var(--font-body);font-weight:400;font-size:12px;color:var(--text-muted);}
   .pick-desc{display:block;font-size:13px;color:var(--text-secondary);margin-top:8px;line-height:1.5;}
-  .extras{display:grid;gap:4px;}
+  .extras{display:grid;gap:4px;grid-template-columns:minmax(0,1fr);}
   .extra{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border);cursor:pointer;}
   .extra:first-child{border-top:none;}
   .extra input{width:20px;height:20px;accent-color:var(--emerald);flex-shrink:0;margin:0;}
-  .extra .e-label{flex:1;font-size:15px;}
+  .extra .e-label{flex:1;min-width:0;font-size:15px;overflow-wrap:break-word;}
   .extra .e-price{font-weight:600;font-size:15px;white-space:nowrap;}
   .extra .e-incl{display:none;font-size:12px;font-weight:600;color:var(--emerald);background:color-mix(in srgb, var(--emerald) 12%, transparent);padding:3px 10px;border-radius:100px;}
   .extra.included .e-price{display:none;}
@@ -356,6 +356,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="ShowPAC — location de karaoké et animation dans le Grand Montréal">
 <meta name="twitter:card" content="summary_large_image">
+<style id="anti-debordement">html,body{overflow-x:clip;max-width:100%}@supports not (overflow:clip){body{overflow-x:hidden}}fieldset{min-width:0}img,svg,video{max-width:100%}</style>
 </head>
 <body>
 
@@ -421,7 +422,7 @@
           <label class="extra"><input type="checkbox" name="extras" value="Mini mélangeur audio avec préampli" data-key="melangeur" data-price="10"><span class="e-label">Mini mélangeur audio avec préamplificateur</span><span class="e-price">10&nbsp;$</span></label>
           <label class="extra"><input type="checkbox" name="extras" value="Adaptateur audio 3/16" data-key="adaptateur" data-price="5"><span class="e-label">Adaptateur audio 3/16 pour connecter vos appareils</span><span class="e-price">5&nbsp;$</span></label>
           <label class="extra"><input type="checkbox" name="assurance" value="oui" id="assur"><span class="e-label">Protection Tranquillité <span style="color:var(--text-muted);">(10&nbsp;% du sous-total)</span><span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">Profitez de la soirée sans vous soucier du matériel&nbsp;: les bris accidentels sont couverts, comme un micro échappé. <span style="color:var(--text-muted);font-style:italic;">Vol, perte et dommages intentionnels exclus.</span></span></span><span class="e-price" id="assurPrice" style="font-weight:500;color:var(--text-secondary);">+ 10&nbsp;%</span></label>
-          <div class="extra" style="cursor:default;padding-left:32px;"><span class="e-label">Vous aimeriez que Pierre anime votre soirée&nbsp;?</span><a class="e-price" href="soumission-animation.html" style="color:var(--emerald);text-decoration:underline;">Demander une soumission</a></div>
+          <div class="extra" style="cursor:default;padding-left:32px;"><span class="e-label">Vous aimeriez que Pierre anime votre soirée&nbsp;?</span><a class="e-price" href="soumission-animation.html" style="color:var(--emerald);text-decoration:underline;white-space:normal;text-align:right;">Demander une soumission</a></div>
         </div>
       </fieldset>
 
@@ -435,7 +436,7 @@
           <div class="field"><label for="ville">Ville</label><input type="text" id="ville" name="ville" autocomplete="address-level2" required></div>
           <div class="field"><label for="cp">Code postal</label><input type="text" id="cp" name="code_postal" autocomplete="postal-code" placeholder="H0H 0H0" maxlength="7" autocapitalize="characters" pattern="[A-Za-z][0-9][A-Za-z][ \-]?[0-9][A-Za-z][0-9]" title="Format du code postal&nbsp;: H0H 0H0" required></div>
           <input type="hidden" id="adresse" name="adresse_livraison">
-          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Livraison et installation gratuites à moins de 25&nbsp;km de Châteauguay. Plus loin, Pierre vous confirme ce qui s’applique.</span>
+          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Livraison, installation et récupération incluses à 25&nbsp;km et moins de Châteauguay. Au-delà&nbsp;: 0,60&nbsp;$ par km additionnel au-delà de 25&nbsp;km, pour chacun des 4&nbsp;trajets (aller et retour à la livraison, aller et retour à la récupération).</span>
           <div class="field full"><label for="infos">Informations supplémentaires <span class="opt">(facultatif)</span></label><textarea id="infos" name="infos" placeholder="Équipement particulier, accès à la salle, installation, cueillette…"></textarea></div>
         </div>
       </fieldset>
