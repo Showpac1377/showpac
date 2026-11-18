@@ -436,6 +436,7 @@
         <legend class="step-head"><span class="step-badge">3</span><h2>Your event</h2></legend>
         <div class="fields">
           <div class="field"><label for="date">Event date</label><input type="date" id="date" name="date_evenement" required><span class="hint" id="dateMsg" style="color:#8A2D10;display:none;">This date is fully booked. Please pick another one.</span></div>
+          <div class="field"><label for="jours">Rental length</label><select id="jours" name="jours_supplementaires"><option value="0">1 day (included)</option><option value="1">2 days</option><option value="2">3 days</option><option value="3">4 days</option><option value="4">5 days</option><option value="5">6 days</option><option value="6">7 days</option></select><span class="hint" id="joursHint"><b>Keep the party going</b>: each extra day is just 20% of your rental (package and extras), with no extra delivery charge.</span></div>
           <div class="field"><label for="invites">Number of guests <span class="opt">(approx.)</span></label><input type="number" id="invites" name="nb_invites" min="1" inputmode="numeric" placeholder="E.g. 60"></div>
           <div class="field"><label for="type">Type of event</label><select id="type" name="type_evenement"><option value="">Choose…</option><option>Corporate event</option><option>Wedding</option><option>Private party</option><option>School or school activity</option><option>Other</option></select></div>
           <div class="field full"><label for="rue">Delivery address</label><input type="text" id="rue" name="rue" autocomplete="address-line1" placeholder="Number and street" required></div>
@@ -571,10 +572,13 @@
         keys.push(i.getAttribute('data-key'));
       }
     });
+    var jrs = parseInt((document.getElementById('jours')||{}).value||'0',10) || 0;
+    var base = lines.reduce(function(s,l){ return s + l[1]; }, 0);
+    if (jrs) lines.push(['Extra day' + (jrs > 1 ? 's' : '') + ' (' + jrs + ' × 20%)', Math.round(base*0.20)*jrs]);
     var sub = lines.reduce(function(s,l){ return s + l[1]; }, 0);
     var ass = assur.checked ? Math.round(sub*0.10) : 0;
     var taxes = Math.round(sub*TAUX);
-    return { key:key, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
+    return { key:key, jrs:jrs, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
   }
 
   function update(){
@@ -590,6 +594,11 @@
     document.getElementById('entreprise').required = false;
     document.getElementById('facturation').required = false;
     document.getElementById('factHint').style.display = fa.checked ? 'block' : 'none';
+    var jSel = document.getElementById('jours');
+    if (jSel){ var jv = jSel.value; jSel.value = '0'; var c0 = calcul(); jSel.value = jv; var pr = c0 ? Math.round(c0.sub*0.20) : 0;
+      [].forEach.call(jSel.options, function(o){ var n = parseInt(o.value,10);
+        o.textContent = n === 0 ? '1 day (included)' : (n+1) + ' days' + (pr ? ' (+' + money(pr*n) + ')' : ''); });
+    }
     var c = calcul();
     if (!c){
       el.empty.hidden = false; el.lines.hidden = true; el.total.hidden = true; el.deposit.hidden = true;
@@ -616,6 +625,7 @@
       txt.push('Estimated taxes: '+money(c.taxes), 'Estimated total: '+money(c.payable), 'Deposit: '+money(ACOMPTE), 'Estimated balance: '+money(Math.max(0,c.total-ACOMPTE)));
       txt.push('Payment method: ' + (m==='acompte' ? 'online deposit (Square)' : m==='total' ? 'full amount online (Square)' : (m==='interac' ? 'deposit by Interac e-Transfer' : 'to be chosen')));
       if (fa.checked) txt.push("Balance: billed to company "+(form.entreprise.value||'(to be confirmed)'));
+      if (c.jrs && dateInput.value){ var dr = new Date(dateInput.value+'T12:00:00'); dr.setDate(dr.getDate()+c.jrs); txt.push('Equipment pickup: ' + dr.toLocaleDateString('en-CA',{weekday:'long',day:'numeric',month:'long'})); }
       el.resume.value = txt.join('\n'); el.totalField.value = money(c.payable);
     }
     if (m === 'acompte'){ el.btn.textContent = 'Pay the $50 deposit'; el.hint.textContent = "You’ll be redirected to Square’s secure payment page. Your date is locked in as soon as payment is received."; }
@@ -638,15 +648,18 @@
   }
 
   function checkDate(){
-    var v = dateInput.value, full = v && blocked[v];
+    var v = dateInput.value, full = false, nj = parseInt((document.getElementById('jours')||{}).value||'0',10)||0;
+    for (var i = 0; v && i <= nj; i++){ var dd = new Date(v+'T12:00:00'); dd.setDate(dd.getDate()+i); var k = dd.getFullYear()+'-'+('0'+(dd.getMonth()+1)).slice(-2)+'-'+('0'+dd.getDate()).slice(-2); if (blocked[k]) full = true; }
     dateInput.setCustomValidity(full ? 'This date is fully booked. Please pick another one.' : '');
     dateMsg.style.display = full ? 'block' : 'none';
+    if (full) dateMsg.textContent = nj ? 'One of the dates in your rental is fully booked. Pick another date or a shorter rental.' : 'This date is fully booked. Please pick another one.';
   }
   fetch('/.netlify/functions/disponibilites').then(function(r){ return r.json(); }).then(function(j){
     (j.bloquees || []).forEach(function(d){ blocked[d] = true; }); checkDate();
     if (j.paiement === false) disableOnline();
   }).catch(function(){});
   dateInput.addEventListener('change', checkDate);
+  document.getElementById('jours').addEventListener('change', checkDate);
   dateInput.addEventListener('input', checkDate);
 
   var rueEl = document.getElementById('rue'), villeEl = document.getElementById('ville'), cpEl = document.getElementById('cp'), adrEl = document.getElementById('adresse');
@@ -698,7 +711,7 @@
     }
 
     var payload = {
-      forfait: c.key, extras: c.keys, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
+      forfait: c.key, extras: c.keys, jours: c.jrs, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
       date: form.date_evenement.value, nom: form.nom.value, courriel: form.courriel.value, telephone: form.telephone.value,
       facture: !!document.getElementById('factSolde').checked, entreprise: form.entreprise.value,
       adresse: form.adresse_livraison.value, invites: form.nb_invites.value, type: form.type_evenement.value, lang: 'en'

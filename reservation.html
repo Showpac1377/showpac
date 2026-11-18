@@ -436,6 +436,7 @@
         <legend class="step-head"><span class="step-badge">3</span><h2>Votre événement</h2></legend>
         <div class="fields">
           <div class="field"><label for="date">Date de l’événement</label><input type="date" id="date" name="date_evenement" required><span class="hint" id="dateMsg" style="color:#8A2D10;display:none;">Cette date est complète. Choisissez-en une autre.</span></div>
+          <div class="field"><label for="jours">Durée de la location</label><select id="jours" name="jours_supplementaires"><option value="0">1 jour (inclus)</option><option value="1">2 jours</option><option value="2">3 jours</option><option value="3">4 jours</option><option value="4">5 jours</option><option value="5">6 jours</option><option value="6">7 jours</option></select><span class="hint" id="joursHint"><b>Prolongez la fête</b>&nbsp;: chaque journée de plus coûte seulement 20&nbsp;% de votre location (forfait et extras), sans livraison supplémentaire.</span></div>
           <div class="field"><label for="invites">Nombre d’invités <span class="opt">(approximatif)</span></label><input type="number" id="invites" name="nb_invites" min="1" inputmode="numeric" placeholder="Ex.&nbsp;: 60"></div>
           <div class="field"><label for="type">Type d’événement</label><select id="type" name="type_evenement"><option value="">Choisir…</option><option>Entreprise</option><option>Mariage</option><option>Fête privée</option><option>École ou activité scolaire</option><option>Autre</option></select></div>
           <div class="field full"><label for="rue">Adresse de livraison</label><input type="text" id="rue" name="rue" autocomplete="address-line1" placeholder="Numéro et rue" required></div>
@@ -571,10 +572,13 @@
         keys.push(i.getAttribute('data-key'));
       }
     });
+    var jrs = parseInt((document.getElementById('jours')||{}).value||'0',10) || 0;
+    var base = lines.reduce(function(s,l){ return s + l[1]; }, 0);
+    if (jrs) lines.push(['Journée supplémentaire (' + jrs + ' × 20 %)', Math.round(base*0.20)*jrs]);
     var sub = lines.reduce(function(s,l){ return s + l[1]; }, 0);
     var ass = assur.checked ? Math.round(sub*0.10) : 0;
     var taxes = Math.round(sub*TAUX);
-    return { key:key, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
+    return { key:key, jrs:jrs, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
   }
 
   function update(){
@@ -590,6 +594,11 @@
     document.getElementById('entreprise').required = false;
     document.getElementById('facturation').required = false;
     document.getElementById('factHint').style.display = fa.checked ? 'block' : 'none';
+    var jSel = document.getElementById('jours');
+    if (jSel){ var jv = jSel.value; jSel.value = '0'; var c0 = calcul(); jSel.value = jv; var pr = c0 ? Math.round(c0.sub*0.20) : 0;
+      [].forEach.call(jSel.options, function(o){ var n = parseInt(o.value,10);
+        o.textContent = n === 0 ? '1 jour (inclus)' : (n+1) + ' jours' + (pr ? ' (+' + money(pr*n) + ')' : ''); });
+    }
     var c = calcul();
     if (!c){
       el.empty.hidden = false; el.lines.hidden = true; el.total.hidden = true; el.deposit.hidden = true;
@@ -616,6 +625,7 @@
       txt.push('Taxes estimées\u00a0: '+money(c.taxes), 'Total estimé\u00a0: '+money(c.payable), 'Dépôt\u00a0: '+money(ACOMPTE), 'Solde estimé\u00a0: '+money(Math.max(0,c.total-ACOMPTE)));
       txt.push('Mode de paiement\u00a0: ' + (m==='acompte' ? 'dépôt en ligne (Square)' : m==='total' ? 'total en ligne (Square)' : (m==='interac' ? 'dépôt par virement Interac' : 'à choisir')));
       if (fa.checked) txt.push("Solde\u00a0: facturé à l’entreprise "+(form.entreprise.value||'(à préciser)'));
+      if (c.jrs && dateInput.value){ var dr = new Date(dateInput.value+'T12:00:00'); dr.setDate(dr.getDate()+c.jrs); txt.push('Retour du matériel\xa0: ' + dr.toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long'})); }
       el.resume.value = txt.join('\n'); el.totalField.value = money(c.payable);
     }
     if (m === 'acompte'){ el.btn.textContent = 'Payer le dépôt de 50 $'; el.hint.textContent = "Vous serez redirigé vers la page de paiement sécurisée de Square. Votre date est réservée dès que le paiement est reçu."; }
@@ -638,15 +648,18 @@
   }
 
   function checkDate(){
-    var v = dateInput.value, full = v && blocked[v];
+    var v = dateInput.value, full = false, nj = parseInt((document.getElementById('jours')||{}).value||'0',10)||0;
+    for (var i = 0; v && i <= nj; i++){ var dd = new Date(v+'T12:00:00'); dd.setDate(dd.getDate()+i); var k = dd.getFullYear()+'-'+('0'+(dd.getMonth()+1)).slice(-2)+'-'+('0'+dd.getDate()).slice(-2); if (blocked[k]) full = true; }
     dateInput.setCustomValidity(full ? 'Cette date est complète. Choisissez-en une autre.' : '');
     dateMsg.style.display = full ? 'block' : 'none';
+    if (full) dateMsg.textContent = nj ? 'Une des dates de votre location est complète. Choisissez une autre date ou une durée plus courte.' : 'Cette date est complète. Choisissez-en une autre.';
   }
   fetch('/.netlify/functions/disponibilites').then(function(r){ return r.json(); }).then(function(j){
     (j.bloquees || []).forEach(function(d){ blocked[d] = true; }); checkDate();
     if (j.paiement === false) disableOnline();
   }).catch(function(){});
   dateInput.addEventListener('change', checkDate);
+  document.getElementById('jours').addEventListener('change', checkDate);
   dateInput.addEventListener('input', checkDate);
 
   var rueEl = document.getElementById('rue'), villeEl = document.getElementById('ville'), cpEl = document.getElementById('cp'), adrEl = document.getElementById('adresse');
@@ -698,7 +711,7 @@
     }
 
     var payload = {
-      forfait: c.key, extras: c.keys, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
+      forfait: c.key, extras: c.keys, jours: c.jrs, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
       date: form.date_evenement.value, nom: form.nom.value, courriel: form.courriel.value, telephone: form.telephone.value,
       facture: !!document.getElementById('factSolde').checked, entreprise: form.entreprise.value,
       adresse: form.adresse_livraison.value, invites: form.nb_invites.value, type: form.type_evenement.value
