@@ -21,6 +21,8 @@ const EXTRAS = {
   adaptateur:   { nom: 'Adaptateur audio 3/16',                      prix: 5 },
 };
 
+const TAUX_JOUR_SUP = 0.20;     // chaque journée de plus = 20 % de la location (forfait + extras)
+const MAX_JOURS_SUP = 6;
 const TAUX_TAXES = 0.14975;      // TPS 5 % + TVQ 9,975 %
 const TAUX_ASSURANCE = 0.10;     // 10 % du solde avant taxes (facultative)
 const ACOMPTE_CENTS = 5000;      // dépôt de 50 $
@@ -30,7 +32,7 @@ const FRAIS_CARTE_TAUX = 0.03;   // 3 % sur le total payé en ligne par carte (l
 
 const cents = (dollars) => Math.round(dollars * 100);
 
-function calculer({ forfait, extras = [], assurance = false }) {
+function calculer({ forfait, extras = [], assurance = false, jours = 0 }) {
   const f = FORFAITS[forfait];
   if (!f) throw new Error('forfait_invalide');
 
@@ -45,6 +47,9 @@ function calculer({ forfait, extras = [], assurance = false }) {
     lignes.push({ nom: e.nom, cents: cents(e.prix), taxable: true });
   }
 
+  const nj = Math.max(0, Math.min(MAX_JOURS_SUP, parseInt(jours, 10) || 0));
+  if (nj) lignes.push({ nom: `Journée supplémentaire (${nj} × 20 % de la location)`, cents: Math.round(lignes.reduce((t, l) => t + l.cents, 0) * TAUX_JOUR_SUP) * nj, taxable: true, joursSup: nj });
+
   const sousTotal = lignes.reduce((s, l) => s + l.cents, 0);
   const assuranceCents = assurance ? Math.round(sousTotal * TAUX_ASSURANCE) : 0;
   const taxes = Math.round(sousTotal * TAUX_TAXES);
@@ -52,7 +57,7 @@ function calculer({ forfait, extras = [], assurance = false }) {
   const frais = Math.round(total * FRAIS_CARTE_TAUX);
   total += frais;
 
-  return { forfaitNom: f.nom, lignes, sousTotal, assuranceCents, taxes, frais, total, acompte: ACOMPTE_CENTS };
+  return { forfaitNom: f.nom, joursSup: nj, lignes, sousTotal, assuranceCents, taxes, frais, total, acompte: ACOMPTE_CENTS };
 }
 
-module.exports = { FORFAITS, EXTRAS, TAUX_TAXES, ACOMPTE_CENTS, calculer };
+module.exports = { FORFAITS, EXTRAS, TAUX_TAXES, ACOMPTE_CENTS, MAX_JOURS_SUP, calculer };

@@ -60,7 +60,16 @@ async function compterReservations() {
     });
     for (const o of rep.orders || []) {
       const d = o.metadata && o.metadata.date_evenement;
-      if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) compte[d] = (compte[d] || 0) + 1;
+      if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+        // « Party PAC + 2 jours supplémentaires » : la machine est occupée 3 jours
+        const mj = /\+ (\d+) jour/.exec(o.metadata.forfait || '');
+        const n = mj ? Math.min(6, parseInt(mj[1], 10)) : 0;
+        for (let i = 0; i <= n; i++) {
+          const j = new Date(d + 'T12:00:00Z'); j.setUTCDate(j.getUTCDate() + i);
+          const k = j.toISOString().slice(0, 10);
+          compte[k] = (compte[k] || 0) + 1;
+        }
+      }
     }
     cursor = rep.cursor;
     pages += 1;
