@@ -4,6 +4,16 @@ const { calculer, FORFAITS, ACOMPTE_CENTS } = require('../lib/prix');
 const { datesBloquees, creerLienPaiement, configure } = require('../lib/square');
 
 const json = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
+// Noms anglais pour la page de paiement Square quand le client réserve depuis /en/
+const EN = {
+  'Clé en main': 'Plug & Play', 'Party PAC': 'Party PAC', 'Corporatif': 'Corporate',
+  'Clé en main (forfait)': 'Plug & Play (package)', 'Party PAC (forfait)': 'Party PAC (package)', 'Corporatif (forfait)': 'Corporate (package)',
+  'Deux micros sans fil': 'Two wireless mics', 'Super tablette (1 500 chansons pour danser)': 'Super tablet (1,500 dance tracks)',
+  'Projecteur multimédia': 'Multimedia projector', 'Écran de 72 po': '72-inch screen',
+  'Haut-parleur 320 W supplémentaire': 'Extra 320 W speaker', 'Haut-parleur 500 W supplémentaire': 'Extra 500 W speaker',
+  'Tablette de 7 po supplémentaire': 'Extra 7-inch tablet', 'Microphone supplémentaire': 'Extra microphone',
+  'Mini mélangeur audio avec préamplificateur': 'Mini audio mixer with preamp', 'Adaptateur audio 3/16': '3/16 audio adapter',
+};
 const texte = (v, n) => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim().slice(0, n);
 
 exports.handler = async (event) => {
@@ -26,40 +36,45 @@ exports.handler = async (event) => {
   if (!Array.isArray(d.extras)) d.extras = [];
 
   let calc;
-  try { calc = calculer({ forfait: d.forfait, extras: d.extras, assurance: !!d.assurance }); }
+  try { calc = calculer({ forfait: d.forfait, extras: d.extras, assurance: !!d.assurance, jours: d.jours }); }
   catch (e) { return json(400, { erreur: e.message }); }
 
   // --- Disponibilité (2 machines par jour par défaut) ---
   try {
     const bloquees = await datesBloquees();
-    if (bloquees.includes(d.date)) return json(409, { erreur: 'date_complete' });
+    for (let i = 0; i <= calc.joursSup; i++) {
+      const j = new Date(d.date + 'T12:00:00Z'); j.setUTCDate(j.getUTCDate() + i);
+      if (bloquees.includes(j.toISOString().slice(0, 10))) return json(409, { erreur: 'date_complete' });
+    }
   } catch (e) {
     return json(502, { erreur: 'verification_impossible' });
   }
 
   // --- Commande Square ---
+  const en = d.lang === 'en';
+  const nomL = (n) => (en && /^Journée supplémentaire/.test(n)) ? n.replace(/^Journée supplémentaire \((\d+) × 20 % de la location\)$/, (m, k) => `Extra day${k > 1 ? 's' : ''} (${k} × 20% of rental)`) : ((en && EN[n]) || n);
   const dollars = (c) => (c / 100).toFixed(2).replace('.', ',') + ' $';
   let lignesCommande;
   if (d.mode === 'acompte') {
     lignesCommande = [{
-      name: `Dépôt de réservation — ${calc.forfaitNom} — ${d.date}`,
+      name: (en ? `Booking deposit — ${nomL(calc.forfaitNom)}` : `Dépôt de réservation — ${calc.forfaitNom}`) + (calc.joursSup ? (en ? ` + ${calc.joursSup} extra day${calc.joursSup > 1 ? 's' : ''}` : ` + ${calc.joursSup} jour${calc.joursSup > 1 ? 's' : ''}`) : '') + ` — ${d.date}`,
       quantity: '1',
       base_price_money: { amount: ACOMPTE_CENTS, currency: 'CAD' },
     }];
   } else {
     lignesCommande = calc.lignes.map((l) => ({
-      name: l.nom, quantity: '1', base_price_money: { amount: l.cents, currency: 'CAD' },
+      name: nomL(l.nom), quantity: '1', base_price_money: { amount: l.cents, currency: 'CAD' },
     }));
-    if (calc.assuranceCents) lignesCommande.push({ name: 'Protection Tranquillité (10 %)', quantity: '1', base_price_money: { amount: calc.assuranceCents, currency: 'CAD' } });
-    lignesCommande.push({ name: 'Taxes (TPS + TVQ)', quantity: '1', base_price_money: { amount: calc.taxes, currency: 'CAD' } });
-    if (calc.frais) lignesCommande.push({ name: 'Frais administratifs (3 %)', quantity: '1', base_price_money: { amount: calc.frais, currency: 'CAD' } });
+    if (calc.assuranceCents) lignesCommande.push({ name: en ? 'Peace-of-Mind Protection (10%)' : 'Protection Tranquillité (10 %)', quantity: '1', base_price_money: { amount: calc.assuranceCents, currency: 'CAD' } });
+    lignesCommande.push({ name: en ? 'Taxes (GST + QST)' : 'Taxes (TPS + TVQ)', quantity: '1', base_price_money: { amount: calc.taxes, currency: 'CAD' } });
+    if (calc.frais) lignesCommande.push({ name: en ? 'Administrative fee (3%)' : 'Frais administratifs (3 %)', quantity: '1', base_price_money: { amount: calc.frais, currency: 'CAD' } });
   }
 
   const commande = {
     line_items: lignesCommande,
     metadata: {                               // max. 10 entrées
       date_evenement: d.date,
-      forfait: calc.forfaitNom,
+      forfait: calc.forfaitNom + (calc.joursSup ? ` + ${calc.joursSup} jour${calc.joursSup > 1 ? 's' : ''} supplémentaire${calc.joursSup > 1 ? 's' : ''}` : ''),
       mode: d.mode,
       nom, courriel, telephone,
       adresse,
@@ -70,13 +85,14 @@ exports.handler = async (event) => {
   };
 
   const site = (process.env.SITE_URL || '').replace(/\/$/, '');
-  const note = `${calc.forfaitNom} le ${d.date} — ${nom} — ${telephone} — ${adresse}` +
+  const note = `${calc.forfaitNom}${calc.joursSup ? ' + ' + calc.joursSup + ' JOUR(S) SUPPLÉMENTAIRE(S)' : ''} le ${d.date} — ${nom} — ${telephone} — ${adresse}` +
     (d.djmc ? ' — DJ/MC demandé' : '') +
     (d.facture ? ' — SOLDE SUR FACTURE' + (d.entreprise ? ' : ' + texte(d.entreprise, 80) : ' (entreprise à préciser)') : '') +
-    (d.extras.length ? ' — extras: ' + d.extras.join(', ') : '');
+    (d.extras.length ? ' — extras: ' + d.extras.join(', ') : '') +
+    (en ? ' — CLIENT ANGLOPHONE (EN)' : '');
 
   try {
-    const url = await creerLienPaiement(commande, site + '/merci.html', courriel, note);
+    const url = await creerLienPaiement(commande, site + (en ? '/merci-en.html' : '/merci.html'), courriel, note);
     if (!url) return json(502, { erreur: 'paiement' });
     return json(200, { url });
   } catch (e) {
