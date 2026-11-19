@@ -1,2 +1,4 @@
 /Réservations.html  /reservation.html  301
 /Reservations.html  /reservation.html  301
+/webmail     https://webmail.showpac.com  302
+/webmail/*   https://webmail.showpac.com  302

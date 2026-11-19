@@ -443,7 +443,15 @@
           <div class="field"><label for="ville">City</label><input type="text" id="ville" name="ville" autocomplete="address-level2" required></div>
           <div class="field"><label for="cp">Postal code</label><input type="text" id="cp" name="code_postal" autocomplete="postal-code" placeholder="H0H 0H0" maxlength="7" autocapitalize="characters" pattern="[A-Za-z][0-9][A-Za-z][ \-]?[0-9][A-Za-z][0-9]" title="Postal code format: H0H 0H0" required></div>
           <input type="hidden" id="adresse" name="adresse_livraison">
-          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Delivery, setup and pickup included within 25&nbsp;km of Châteauguay. Beyond that: $0.60 per extra km, for each of the 4 trips (there and back for delivery, there and back for pickup).</span>
+          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Delivery, setup and pickup included within 25&nbsp;km of Châteauguay. Beyond that: $0.60 per extra km, for each of the 4 trips (there and back for delivery, there and back for pickup). The fee is added to your total as soon as you enter your address.</span>
+          <span class="hint" id="distMsg" style="grid-column:1/-1;margin-top:-10px;display:none;"></span>
+          <div class="extras" id="livOpts" style="grid-column:1/-1;">
+            <p style="font-size:14px;font-weight:600;margin:0 0 2px;">Delivery options <span style="font-weight:400;color:var(--text-muted);">(optional)</span></p>
+            <label class="extra"><input type="checkbox" name="livraison" value="Express delivery" data-key="express" data-price="50" data-label="Express delivery (24 h)"><span class="e-label">Express delivery<span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">Equipment delivered within 24 hours of your booking.</span></span><span class="e-price">$50</span></label>
+            <label class="extra" id="ramRow"><input type="checkbox" name="livraison" value="Same-day pickup" data-key="ramassage" data-price="60" data-label="Same-day pickup" id="ramassage"><span class="e-label">Same-day pickup<span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">We pick up the equipment the same day as delivery, after your event, instead of the next day.</span><span id="ramHint" style="display:none;font-size:13px;color:#8A2D10;margin-top:3px;">Not available with rentals longer than one day.</span></span><span class="e-price">$60</span></label>
+          </div>
+          <div class="field contact-place" style="display:none;"><label for="cpNom">On-site contact at pickup <span class="opt">(if not you)</span></label><input type="text" id="cpNom" name="contact_sur_place_nom" autocomplete="off" placeholder="Name"></div>
+          <div class="field contact-place" style="display:none;"><label for="cpTel">Their cell phone</label><input type="tel" id="cpTel" name="contact_sur_place_tel" autocomplete="off" placeholder="514 555-1234"></div>
           <div class="field full"><label for="infos">Additional information <span class="opt">(optional)</span></label><textarea id="infos" name="infos" placeholder="Special equipment, venue access, setup, pickup…"></textarea></div>
         </div>
       </fieldset>
@@ -452,9 +460,9 @@
         <legend class="step-head"><span class="step-badge">4</span><h2>Your contact info</h2></legend>
         <div class="fields">
           <div class="field"><label for="nom">Your name</label><input type="text" id="nom" name="nom" autocomplete="name" required></div>
-          <div class="field"><label for="entreprise">Company name <span class="opt">(if applicable)</span></label><input type="text" id="entreprise" name="entreprise" autocomplete="organization"></div>
-          <div class="field"><label for="courriel">Email</label><input type="email" id="courriel" name="courriel" autocomplete="email" required></div>
-          <div class="field"><label for="tel">Phone</label><input type="tel" id="tel" name="telephone" autocomplete="tel" required></div>
+          <div class="field"><label for="entreprise">Legal business name <span class="opt">(businesses only, for the invoice)</span></label><input type="text" id="entreprise" name="entreprise" autocomplete="organization"></div>
+          <div class="field"><label for="courriel">Email</label><input type="email" id="courriel" name="courriel" autocomplete="email" required><span class="hint">For your confirmation and invoice.</span></div>
+          <div class="field"><label for="tel">Phone</label><input type="tel" id="tel" name="telephone" autocomplete="tel" placeholder="514 555-1234" required><span class="hint">So we can reach you on delivery day.</span></div>
           <div class="field full"><label for="facturation">Billing address <span class="opt">(if different)</span></label><input type="text" id="facturation" name="adresse_facturation" autocomplete="billing street-address"></div>
           <div class="field full"><label class="extra" style="border-top:none;padding:6px 0;"><input type="checkbox" name="facturer_solde" value="oui" id="factSolde"><span class="e-label">Bill the balance to my company <span style="color:var(--text-muted);">(the $50 deposit is still payable online or by Interac)</span></span></label><span class="hint" id="factHint" style="display:none;">If you can, enter the company name and billing address above. Otherwise, Pierre will ask for them before sending the invoice.</span></div>
         </div>
@@ -554,7 +562,7 @@
     btn: document.getElementById('submitBtn'), hint: document.getElementById('payHint')
   };
   var dateInput = document.getElementById('date'), dateMsg = document.getElementById('dateMsg');
-  var blocked = {};
+  var blocked = {}, dist = null;
   var t = new Date(); t.setMinutes(t.getMinutes()-t.getTimezoneOffset());
   dateInput.min = t.toISOString().slice(0,10);
 
@@ -575,10 +583,15 @@
     var jrs = parseInt((document.getElementById('jours')||{}).value||'0',10) || 0;
     var base = lines.reduce(function(s,l){ return s + l[1]; }, 0);
     if (jrs) lines.push(['Extra day' + (jrs > 1 ? 's' : '') + ' (' + jrs + ' × 20%)', Math.round(base*0.20)*jrs]);
+    var loc = lines.reduce(function(s,l){ return s + l[1]; }, 0), livKeys = [];
+    form.querySelectorAll('input[name="livraison"]').forEach(function(i){
+      if (i.checked && !i.disabled){ lines.push([i.getAttribute('data-label'), Math.round(parseFloat(i.getAttribute('data-price'))*100)]); livKeys.push(i.getAttribute('data-key')); }
+    });
+    if (dist && dist.fraisCents) lines.push(['Travel fee (' + dist.kmSup + ' km × 4 trips)', dist.fraisCents]);
     var sub = lines.reduce(function(s,l){ return s + l[1]; }, 0);
-    var ass = assur.checked ? Math.round(sub*0.10) : 0;
+    var ass = assur.checked ? Math.round(loc*0.10) : 0;
     var taxes = Math.round(sub*TAUX);
-    return { key:key, jrs:jrs, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
+    return { key:key, jrs:jrs, lines:lines, keys:keys, livKeys:livKeys, base:base, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
   }
 
   function update(){
@@ -594,8 +607,13 @@
     document.getElementById('entreprise').required = false;
     document.getElementById('facturation').required = false;
     document.getElementById('factHint').style.display = fa.checked ? 'block' : 'none';
+    var ram = document.getElementById('ramassage'), jN = parseInt((document.getElementById('jours')||{}).value||'0',10)||0;
+    if (ram){ ram.disabled = jN > 0; if (jN > 0) ram.checked = false;
+      document.getElementById('ramHint').style.display = jN > 0 ? 'block' : 'none';
+      document.getElementById('ramRow').style.opacity = jN > 0 ? '.6' : '';
+      document.querySelectorAll('.contact-place').forEach(function(d){ d.style.display = ram.checked ? '' : 'none'; }); }
     var jSel = document.getElementById('jours');
-    if (jSel){ var jv = jSel.value; jSel.value = '0'; var c0 = calcul(); jSel.value = jv; var pr = c0 ? Math.round(c0.sub*0.20) : 0;
+    if (jSel){ var jv = jSel.value; jSel.value = '0'; var c0 = calcul(); jSel.value = jv; var pr = c0 ? Math.round(c0.base*0.20) : 0;
       [].forEach.call(jSel.options, function(o){ var n = parseInt(o.value,10);
         o.textContent = n === 0 ? '1 day (included)' : (n+1) + ' days' + (pr ? ' (+' + money(pr*n) + ')' : ''); });
     }
@@ -610,6 +628,7 @@
       if (c.ass) html += '<li><span>Peace-of-Mind Protection (10%)</span><span>'+money(c.ass)+'</span></li>';
       html += '<li><span>Taxes (GST + QST)</span><span>'+money(c.taxes)+'</span></li>';
       html += '<li><span>Delivery, setup and pickup (within 25 km)</span><span>Included</span></li>';
+      if (!dist) html += '<li><span>Beyond 25 km</span><span>Added to balance</span></li>';
       var fraisCarte = (m === 'total') ? Math.round(c.total*0.03) : 0;
       if (fraisCarte) html += '<li><span>Administrative fee (3%)</span><span>'+money(fraisCarte)+'</span></li>';
       c.payable = c.total + fraisCarte;
@@ -626,6 +645,7 @@
       txt.push('Payment method: ' + (m==='acompte' ? 'online deposit (Square)' : m==='total' ? 'full amount online (Square)' : (m==='interac' ? 'deposit by Interac e-Transfer' : 'to be chosen')));
       if (fa.checked) txt.push("Balance: billed to company "+(form.entreprise.value||'(to be confirmed)'));
       if (c.jrs && dateInput.value){ var dr = new Date(dateInput.value+'T12:00:00'); dr.setDate(dr.getDate()+c.jrs); txt.push('Equipment pickup: ' + dr.toLocaleDateString('en-CA',{weekday:'long',day:'numeric',month:'long'})); }
+      if (document.getElementById('ramassage').checked && (form.contact_sur_place_nom.value || form.contact_sur_place_tel.value)) txt.push('On-site contact\u00a0: ' + form.contact_sur_place_nom.value + ' ' + form.contact_sur_place_tel.value);
       el.resume.value = txt.join('\n'); el.totalField.value = money(c.payable);
     }
     if (m === 'acompte'){ el.btn.textContent = 'Pay the $50 deposit'; el.hint.textContent = "You’ll be redirected to Square’s secure payment page. Your date is locked in as soon as payment is received."; }
@@ -666,6 +686,29 @@
   function fmtCp(v){ return v.trim().toUpperCase().replace(/^([A-Z]\d[A-Z])[ -]?(\d[A-Z]\d)$/, '$1 $2'); }
   function syncAdresse(){ adrEl.value = [rueEl.value.trim(), villeEl.value.trim(), fmtCp(cpEl.value)].filter(Boolean).join(', '); }
   [rueEl, villeEl, cpEl].forEach(function(e){ e.addEventListener('input', syncAdresse); });
+  var distMsg = document.getElementById('distMsg'), distKey = '', distPromise = null;
+  var geoCredit = ' <span style="opacity:.7;">(distance: <a href="https://www.geoapify.com/" target="_blank" rel="noopener" style="color:inherit;">Geoapify</a>, © OpenStreetMap)</span>';
+  function majDistance(){
+    syncAdresse();
+    var ok = rueEl.value.trim().length > 3 && villeEl.value.trim() && /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(cpEl.value.trim());
+    var k = adrEl.value;
+    if (!ok || k === distKey) return distPromise;
+    distKey = k; dist = null; update();
+    distMsg.style.display = 'block'; distMsg.textContent = 'Calculating distance…';
+    distPromise = fetch('/.netlify/functions/distance?adresse=' + encodeURIComponent(k) + '&cp=' + encodeURIComponent(fmtCp(cpEl.value)))
+      .then(function(r){ return r.json().then(function(j){ return {s:r.status, j:j}; }); })
+      .then(function(r){
+        if (k !== distKey) return;
+        if (r.s === 503){ distMsg.textContent = 'Pierre calculates this fee and adds it to your balance.'; return; }
+        if (r.s !== 200){ distMsg.textContent = 'Distance couldn’t be calculated: Pierre will add any travel fee if needed.'; return; }
+        var d = r.j; dist = d;
+        distMsg.innerHTML = (d.kmSup ? 'About ' + d.km + ' km from our office: travel fee of ' + money(d.fraisCents) + ' (' + d.kmSup + ' km × 4 trips × $0.60).' : 'About ' + d.km + ' km from our office: delivery included.') + geoCredit;
+        update();
+      })
+      .catch(function(){ if (k === distKey) distMsg.textContent = 'Distance couldn’t be calculated: Pierre will add any travel fee if needed.'; });
+    return distPromise;
+  }
+  [rueEl, villeEl, cpEl].forEach(function(e){ e.addEventListener('change', majDistance); });
   cpEl.addEventListener('blur', function(){ cpEl.value = fmtCp(cpEl.value); syncAdresse(); });
   form.addEventListener('change', update);
   var qs = new URLSearchParams(location.search).get('forfait');
@@ -693,11 +736,14 @@
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
+    var pend = majDistance();
+    if (pend && !dist && distMsg.style.display === 'block' && /…$/.test(distMsg.textContent)){ el.btn.disabled = true; pend.then(function(){ el.btn.disabled = false; form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit',{cancelable:true})); }); return; }
     syncAdresse();
     el.err.classList.remove('show');
     if (!selectedPkg()){ showError("Please pick a package first (step 1)."); document.querySelector('.picks').scrollIntoView({behavior:'smooth',block:'center'}); return; }
     if (!mode()){ showError('Please choose your payment method (step 5).'); return; }
     checkDate();
+    [form.telephone, form.contact_sur_place_tel].forEach(function(f){ var n = (f.value||'').replace(/\D/g,'').length; f.setCustomValidity((f.required || f.value) && n < 10 ? 'Please enter a full phone number (10 digits).' : ''); });
     if (!form.reportValidity()) return;
     var c = update(), m = mode();
     el.btn.disabled = true; el.btn.textContent = 'One moment…';
@@ -711,7 +757,7 @@
     }
 
     var payload = {
-      forfait: c.key, extras: c.keys, jours: c.jrs, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
+      forfait: c.key, extras: c.keys, jours: c.jrs, livraison: c.livKeys, cp: fmtCp(cpEl.value), contact_nom: form.contact_sur_place_nom.value, contact_tel: form.contact_sur_place_tel.value, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
       date: form.date_evenement.value, nom: form.nom.value, courriel: form.courriel.value, telephone: form.telephone.value,
       facture: !!document.getElementById('factSolde').checked, entreprise: form.entreprise.value,
       adresse: form.adresse_livraison.value, invites: form.nb_invites.value, type: form.type_evenement.value, lang: 'en'

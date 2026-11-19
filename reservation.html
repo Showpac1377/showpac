@@ -443,7 +443,15 @@
           <div class="field"><label for="ville">Ville</label><input type="text" id="ville" name="ville" autocomplete="address-level2" required></div>
           <div class="field"><label for="cp">Code postal</label><input type="text" id="cp" name="code_postal" autocomplete="postal-code" placeholder="H0H 0H0" maxlength="7" autocapitalize="characters" pattern="[A-Za-z][0-9][A-Za-z][ \-]?[0-9][A-Za-z][0-9]" title="Format du code postal&nbsp;: H0H 0H0" required></div>
           <input type="hidden" id="adresse" name="adresse_livraison">
-          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Livraison, installation et récupération incluses à 25&nbsp;km et moins de Châteauguay. Au-delà&nbsp;: 0,60&nbsp;$ par km additionnel, pour chacun des 4&nbsp;trajets (aller et retour à la livraison, aller et retour à la récupération).</span>
+          <span class="hint" style="grid-column:1/-1;margin-top:-6px;">Livraison, installation et récupération incluses à 25&nbsp;km et moins de Châteauguay. Au-delà&nbsp;: 0,60&nbsp;$ par km additionnel, pour chacun des 4&nbsp;trajets (aller et retour à la livraison, aller et retour à la récupération). Le montant s’ajoute à votre total dès que votre adresse est entrée.</span>
+          <span class="hint" id="distMsg" style="grid-column:1/-1;margin-top:-10px;display:none;"></span>
+          <div class="extras" id="livOpts" style="grid-column:1/-1;">
+            <p style="font-size:14px;font-weight:600;margin:0 0 2px;">Options de livraison <span style="font-weight:400;color:var(--text-muted);">(facultatif)</span></p>
+            <label class="extra"><input type="checkbox" name="livraison" value="Livraison express" data-key="express" data-price="50" data-label="Livraison express (24 h)"><span class="e-label">Livraison express<span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">Matériel livré dans les 24&nbsp;h suivant votre réservation.</span></span><span class="e-price">50&nbsp;$</span></label>
+            <label class="extra" id="ramRow"><input type="checkbox" name="livraison" value="Ramassage le jour même" data-key="ramassage" data-price="60" data-label="Ramassage le jour même" id="ramassage"><span class="e-label">Ramassage le jour même<span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:3px;line-height:1.45;">On récupère le matériel le jour même de la livraison, après votre événement, plutôt que le lendemain.</span><span id="ramHint" style="display:none;font-size:13px;color:#8A2D10;margin-top:3px;">Non offert avec une location de plus d’une journée.</span></span><span class="e-price">60&nbsp;$</span></label>
+          </div>
+          <div class="field contact-place" style="display:none;"><label for="cpNom">Personne sur place au ramassage <span class="opt">(si ce n’est pas vous)</span></label><input type="text" id="cpNom" name="contact_sur_place_nom" autocomplete="off" placeholder="Nom"></div>
+          <div class="field contact-place" style="display:none;"><label for="cpTel">Son cellulaire</label><input type="tel" id="cpTel" name="contact_sur_place_tel" autocomplete="off" placeholder="514 555-1234"></div>
           <div class="field full"><label for="infos">Informations supplémentaires <span class="opt">(facultatif)</span></label><textarea id="infos" name="infos" placeholder="Équipement particulier, accès à la salle, installation, cueillette…"></textarea></div>
         </div>
       </fieldset>
@@ -452,9 +460,9 @@
         <legend class="step-head"><span class="step-badge">4</span><h2>Vos coordonnées</h2></legend>
         <div class="fields">
           <div class="field"><label for="nom">Votre nom</label><input type="text" id="nom" name="nom" autocomplete="name" required></div>
-          <div class="field"><label for="entreprise">Nom d’entreprise <span class="opt">(si applicable)</span></label><input type="text" id="entreprise" name="entreprise" autocomplete="organization"></div>
-          <div class="field"><label for="courriel">Courriel</label><input type="email" id="courriel" name="courriel" autocomplete="email" required></div>
-          <div class="field"><label for="tel">Téléphone</label><input type="tel" id="tel" name="telephone" autocomplete="tel" required></div>
+          <div class="field"><label for="entreprise">Raison sociale <span class="opt">(entreprises seulement, pour la facture)</span></label><input type="text" id="entreprise" name="entreprise" autocomplete="organization"></div>
+          <div class="field"><label for="courriel">Courriel</label><input type="email" id="courriel" name="courriel" autocomplete="email" required><span class="hint">Pour votre confirmation et votre facture.</span></div>
+          <div class="field"><label for="tel">Téléphone</label><input type="tel" id="tel" name="telephone" autocomplete="tel" placeholder="514 555-1234" required><span class="hint">Pour vous joindre le jour de la livraison.</span></div>
           <div class="field full"><label for="facturation">Adresse de facturation <span class="opt">(si différente)</span></label><input type="text" id="facturation" name="adresse_facturation" autocomplete="billing street-address"></div>
           <div class="field full"><label class="extra" style="border-top:none;padding:6px 0;"><input type="checkbox" name="facturer_solde" value="oui" id="factSolde"><span class="e-label">Facturer le solde à mon entreprise <span style="color:var(--text-muted);">(le dépôt de 50&nbsp;$ reste payable en ligne ou par Interac)</span></span></label><span class="hint" id="factHint" style="display:none;">Si vous le pouvez, indiquez le nom de l’entreprise et l’adresse de facturation ci-dessus. Sinon, Pierre vous les demandera avant de vous envoyer la facture.</span></div>
         </div>
@@ -554,7 +562,7 @@
     btn: document.getElementById('submitBtn'), hint: document.getElementById('payHint')
   };
   var dateInput = document.getElementById('date'), dateMsg = document.getElementById('dateMsg');
-  var blocked = {};
+  var blocked = {}, dist = null;
   var t = new Date(); t.setMinutes(t.getMinutes()-t.getTimezoneOffset());
   dateInput.min = t.toISOString().slice(0,10);
 
@@ -575,10 +583,15 @@
     var jrs = parseInt((document.getElementById('jours')||{}).value||'0',10) || 0;
     var base = lines.reduce(function(s,l){ return s + l[1]; }, 0);
     if (jrs) lines.push(['Journée supplémentaire (' + jrs + ' × 20 %)', Math.round(base*0.20)*jrs]);
+    var loc = lines.reduce(function(s,l){ return s + l[1]; }, 0), livKeys = [];
+    form.querySelectorAll('input[name="livraison"]').forEach(function(i){
+      if (i.checked && !i.disabled){ lines.push([i.getAttribute('data-label'), Math.round(parseFloat(i.getAttribute('data-price'))*100)]); livKeys.push(i.getAttribute('data-key')); }
+    });
+    if (dist && dist.fraisCents) lines.push(['Frais de déplacement (' + dist.kmSup + ' km × 4 trajets)', dist.fraisCents]);
     var sub = lines.reduce(function(s,l){ return s + l[1]; }, 0);
-    var ass = assur.checked ? Math.round(sub*0.10) : 0;
+    var ass = assur.checked ? Math.round(loc*0.10) : 0;
     var taxes = Math.round(sub*TAUX);
-    return { key:key, jrs:jrs, lines:lines, keys:keys, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
+    return { key:key, jrs:jrs, lines:lines, keys:keys, livKeys:livKeys, base:base, sub:sub, ass:ass, taxes:taxes, total:sub+ass+taxes };
   }
 
   function update(){
@@ -594,8 +607,13 @@
     document.getElementById('entreprise').required = false;
     document.getElementById('facturation').required = false;
     document.getElementById('factHint').style.display = fa.checked ? 'block' : 'none';
+    var ram = document.getElementById('ramassage'), jN = parseInt((document.getElementById('jours')||{}).value||'0',10)||0;
+    if (ram){ ram.disabled = jN > 0; if (jN > 0) ram.checked = false;
+      document.getElementById('ramHint').style.display = jN > 0 ? 'block' : 'none';
+      document.getElementById('ramRow').style.opacity = jN > 0 ? '.6' : '';
+      document.querySelectorAll('.contact-place').forEach(function(d){ d.style.display = ram.checked ? '' : 'none'; }); }
     var jSel = document.getElementById('jours');
-    if (jSel){ var jv = jSel.value; jSel.value = '0'; var c0 = calcul(); jSel.value = jv; var pr = c0 ? Math.round(c0.sub*0.20) : 0;
+    if (jSel){ var jv = jSel.value; jSel.value = '0'; var c0 = calcul(); jSel.value = jv; var pr = c0 ? Math.round(c0.base*0.20) : 0;
       [].forEach.call(jSel.options, function(o){ var n = parseInt(o.value,10);
         o.textContent = n === 0 ? '1 jour (inclus)' : (n+1) + ' jours' + (pr ? ' (+' + money(pr*n) + ')' : ''); });
     }
@@ -610,6 +628,7 @@
       if (c.ass) html += '<li><span>Protection Tranquillité (10 %)</span><span>'+money(c.ass)+'</span></li>';
       html += '<li><span>Taxes (TPS + TVQ)</span><span>'+money(c.taxes)+'</span></li>';
       html += '<li><span>Livraison, installation et récupération (25 km et moins)</span><span>Incluses</span></li>';
+      if (!dist) html += '<li><span>Au-delà de 25 km</span><span>Ajouté au solde</span></li>';
       var fraisCarte = (m === 'total') ? Math.round(c.total*0.03) : 0;
       if (fraisCarte) html += '<li><span>Frais administratifs (3 %)</span><span>'+money(fraisCarte)+'</span></li>';
       c.payable = c.total + fraisCarte;
@@ -626,6 +645,7 @@
       txt.push('Mode de paiement\u00a0: ' + (m==='acompte' ? 'dépôt en ligne (Square)' : m==='total' ? 'total en ligne (Square)' : (m==='interac' ? 'dépôt par virement Interac' : 'à choisir')));
       if (fa.checked) txt.push("Solde\u00a0: facturé à l’entreprise "+(form.entreprise.value||'(à préciser)'));
       if (c.jrs && dateInput.value){ var dr = new Date(dateInput.value+'T12:00:00'); dr.setDate(dr.getDate()+c.jrs); txt.push('Retour du matériel\xa0: ' + dr.toLocaleDateString('fr-CA',{weekday:'long',day:'numeric',month:'long'})); }
+      if (document.getElementById('ramassage').checked && (form.contact_sur_place_nom.value || form.contact_sur_place_tel.value)) txt.push('Personne sur place\u00a0: ' + form.contact_sur_place_nom.value + ' ' + form.contact_sur_place_tel.value);
       el.resume.value = txt.join('\n'); el.totalField.value = money(c.payable);
     }
     if (m === 'acompte'){ el.btn.textContent = 'Payer le dépôt de 50 $'; el.hint.textContent = "Vous serez redirigé vers la page de paiement sécurisée de Square. Votre date est réservée dès que le paiement est reçu."; }
@@ -666,6 +686,29 @@
   function fmtCp(v){ return v.trim().toUpperCase().replace(/^([A-Z]\d[A-Z])[ -]?(\d[A-Z]\d)$/, '$1 $2'); }
   function syncAdresse(){ adrEl.value = [rueEl.value.trim(), villeEl.value.trim(), fmtCp(cpEl.value)].filter(Boolean).join(', '); }
   [rueEl, villeEl, cpEl].forEach(function(e){ e.addEventListener('input', syncAdresse); });
+  var distMsg = document.getElementById('distMsg'), distKey = '', distPromise = null;
+  var geoCredit = ' <span style="opacity:.7;">(distance : <a href="https://www.geoapify.com/" target="_blank" rel="noopener" style="color:inherit;">Geoapify</a>, © OpenStreetMap)</span>';
+  function majDistance(){
+    syncAdresse();
+    var ok = rueEl.value.trim().length > 3 && villeEl.value.trim() && /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(cpEl.value.trim());
+    var k = adrEl.value;
+    if (!ok || k === distKey) return distPromise;
+    distKey = k; dist = null; update();
+    distMsg.style.display = 'block'; distMsg.textContent = 'Calcul de la distance…';
+    distPromise = fetch('/.netlify/functions/distance?adresse=' + encodeURIComponent(k) + '&cp=' + encodeURIComponent(fmtCp(cpEl.value)))
+      .then(function(r){ return r.json().then(function(j){ return {s:r.status, j:j}; }); })
+      .then(function(r){
+        if (k !== distKey) return;
+        if (r.s === 503){ distMsg.textContent = 'Pierre calcule ces frais et les ajoute au solde.'; return; }
+        if (r.s !== 200){ distMsg.textContent = 'Distance non calculée : Pierre ajoutera les frais de déplacement au besoin.'; return; }
+        var d = r.j; dist = d;
+        distMsg.innerHTML = (d.kmSup ? 'Environ ' + d.km + ' km de notre bureau : frais de déplacement de ' + money(d.fraisCents) + ' (' + d.kmSup + ' km × 4 trajets × 0,60 $).' : 'Environ ' + d.km + ' km de notre bureau : livraison incluse.') + geoCredit;
+        update();
+      })
+      .catch(function(){ if (k === distKey) distMsg.textContent = 'Distance non calculée : Pierre ajoutera les frais de déplacement au besoin.'; });
+    return distPromise;
+  }
+  [rueEl, villeEl, cpEl].forEach(function(e){ e.addEventListener('change', majDistance); });
   cpEl.addEventListener('blur', function(){ cpEl.value = fmtCp(cpEl.value); syncAdresse(); });
   form.addEventListener('change', update);
   var qs = new URLSearchParams(location.search).get('forfait');
@@ -693,11 +736,14 @@
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
+    var pend = majDistance();
+    if (pend && !dist && distMsg.style.display === 'block' && /…$/.test(distMsg.textContent)){ el.btn.disabled = true; pend.then(function(){ el.btn.disabled = false; form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit',{cancelable:true})); }); return; }
     syncAdresse();
     el.err.classList.remove('show');
     if (!selectedPkg()){ showError("Choisissez d’abord un forfait (étape 1)."); document.querySelector('.picks').scrollIntoView({behavior:'smooth',block:'center'}); return; }
     if (!mode()){ showError('Choisissez votre mode de paiement (étape 5).'); return; }
     checkDate();
+    [form.telephone, form.contact_sur_place_tel].forEach(function(f){ var n = (f.value||'').replace(/\D/g,'').length; f.setCustomValidity((f.required || f.value) && n < 10 ? 'Entrez un numéro de téléphone complet (10 chiffres).' : ''); });
     if (!form.reportValidity()) return;
     var c = update(), m = mode();
     el.btn.disabled = true; el.btn.textContent = 'Un instant…';
@@ -711,7 +757,7 @@
     }
 
     var payload = {
-      forfait: c.key, extras: c.keys, jours: c.jrs, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
+      forfait: c.key, extras: c.keys, jours: c.jrs, livraison: c.livKeys, cp: fmtCp(cpEl.value), contact_nom: form.contact_sur_place_nom.value, contact_tel: form.contact_sur_place_tel.value, assurance: !!assur.checked, mode: m, djmc: !!djmc.checked,
       date: form.date_evenement.value, nom: form.nom.value, courriel: form.courriel.value, telephone: form.telephone.value,
       facture: !!document.getElementById('factSolde').checked, entreprise: form.entreprise.value,
       adresse: form.adresse_livraison.value, invites: form.nb_invites.value, type: form.type_evenement.value
