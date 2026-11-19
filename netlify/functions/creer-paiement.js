@@ -2,6 +2,7 @@
 // Reçoit les choix du client, RECALCULE le prix, vérifie la date, crée la page de paiement Square.
 const { calculer, FORFAITS, ACOMPTE_CENTS } = require('../lib/prix');
 const { datesBloquees, creerLienPaiement, configure } = require('../lib/square');
+const { calculerDistance, configureDistance } = require('../lib/geo');
 
 const json = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 // Noms anglais pour la page de paiement Square quand le client réserve depuis /en/
@@ -13,6 +14,7 @@ const EN = {
   'Haut-parleur 320 W supplémentaire': 'Extra 320 W speaker', 'Haut-parleur 500 W supplémentaire': 'Extra 500 W speaker',
   'Tablette de 7 po supplémentaire': 'Extra 7-inch tablet', 'Microphone supplémentaire': 'Extra microphone',
   'Mini mélangeur audio avec préamplificateur': 'Mini audio mixer with preamp', 'Adaptateur audio 3/16': '3/16 audio adapter',
+  'Livraison express (24 h)': 'Express delivery (24 h)', 'Ramassage le jour même': 'Same-day pickup',
 };
 const texte = (v, n) => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim().slice(0, n);
 
@@ -33,10 +35,17 @@ exports.handler = async (event) => {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(courriel)) return json(400, { erreur: 'courriel' });
   const nom = texte(d.nom, 80), telephone = texte(d.telephone, 30), adresse = texte(d.adresse, 200);
   if (!nom || !telephone || !adresse) return json(400, { erreur: 'champs' });
+  if (telephone.replace(/\D/g, '').length < 10) return json(400, { erreur: 'telephone' });
   if (!Array.isArray(d.extras)) d.extras = [];
 
+  // Distance recalculée ici (jamais prise du navigateur). En cas de panne : pas de frais, Pierre vérifie.
+  let dep = null, depErreur = false;
+  if (configureDistance()) {
+    try { dep = await calculerDistance(adresse, texte(d.cp, 10)); } catch (e) { depErreur = true; console.error('Distance:', e.message); }
+  }
+
   let calc;
-  try { calc = calculer({ forfait: d.forfait, extras: d.extras, assurance: !!d.assurance, jours: d.jours }); }
+  try { calc = calculer({ forfait: d.forfait, extras: d.extras, assurance: !!d.assurance, jours: d.jours, livraison: d.livraison, deplacement: dep ? { kmSup: dep.kmSup, cents: dep.fraisCents } : null }); }
   catch (e) { return json(400, { erreur: e.message }); }
 
   // --- Disponibilité (2 machines par jour par défaut) ---
@@ -52,7 +61,7 @@ exports.handler = async (event) => {
 
   // --- Commande Square ---
   const en = d.lang === 'en';
-  const nomL = (n) => (en && /^Journée supplémentaire/.test(n)) ? n.replace(/^Journée supplémentaire \((\d+) × 20 % de la location\)$/, (m, k) => `Extra day${k > 1 ? 's' : ''} (${k} × 20% of rental)`) : ((en && EN[n]) || n);
+  const nomL = (n) => (en && /^Frais de déplacement/.test(n)) ? n.replace(/^Frais de déplacement \((\d+) km × 4 trajets\)$/, 'Travel fee ($1 km × 4 trips)') : (en && /^Journée supplémentaire/.test(n)) ? n.replace(/^Journée supplémentaire \((\d+) × 20 % de la location\)$/, (m, k) => `Extra day${k > 1 ? 's' : ''} (${k} × 20% of rental)`) : ((en && EN[n]) || n);
   const dollars = (c) => (c / 100).toFixed(2).replace('.', ',') + ' $';
   let lignesCommande;
   if (d.mode === 'acompte') {
@@ -74,7 +83,8 @@ exports.handler = async (event) => {
     line_items: lignesCommande,
     metadata: {                               // max. 10 entrées
       date_evenement: d.date,
-      forfait: calc.forfaitNom + (calc.joursSup ? ` + ${calc.joursSup} jour${calc.joursSup > 1 ? 's' : ''} supplémentaire${calc.joursSup > 1 ? 's' : ''}` : ''),
+      forfait: calc.forfaitNom + (calc.joursSup ? ` + ${calc.joursSup} jour${calc.joursSup > 1 ? 's' : ''} supplémentaire${calc.joursSup > 1 ? 's' : ''}` : '') +
+        (calc.options.includes('express') ? ' + livraison express' : '') + (calc.options.includes('ramassage') ? ' + ramassage le jour même' : ''),
       mode: d.mode,
       nom, courriel, telephone,
       adresse,
@@ -85,7 +95,11 @@ exports.handler = async (event) => {
   };
 
   const site = (process.env.SITE_URL || '').replace(/\/$/, '');
+  const contactPlace = [texte(d.contact_nom, 60), texte(d.contact_tel, 30)].filter(Boolean).join(' ');
   const note = `${calc.forfaitNom}${calc.joursSup ? ' + ' + calc.joursSup + ' JOUR(S) SUPPLÉMENTAIRE(S)' : ''} le ${d.date} — ${nom} — ${telephone} — ${adresse}` +
+    (dep ? ` — DISTANCE : ${dep.km} km` + (dep.kmSup ? ` (${dep.kmSup} km sup. facturés)` : ' (incluse)') : (depErreur ? ' — DISTANCE À VÉRIFIER' : '')) +
+    (calc.options.includes('express') ? ' — LIVRAISON EXPRESS (24 h)' : '') +
+    (calc.options.includes('ramassage') ? ' — RAMASSAGE LE JOUR MÊME' + (contactPlace ? ' (sur place : ' + contactPlace + ')' : '') : '') +
     (d.djmc ? ' — DJ/MC demandé' : '') +
     (d.facture ? ' — SOLDE SUR FACTURE' + (d.entreprise ? ' : ' + texte(d.entreprise, 80) : ' (entreprise à préciser)') : '') +
     (d.extras.length ? ' — extras: ' + d.extras.join(', ') : '') +

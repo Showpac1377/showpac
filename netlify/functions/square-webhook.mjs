@@ -36,6 +36,7 @@ function avisPierre(m, payment, order) {
     ["Type d’événement", m.type_evenement], ["Invités", m.invites],
     [acompte ? "Dépôt payé" : "Payé au complet", dollars(payment.total_money)],
     ["Total estimé", acompte ? m.total_estime : ""],
+    ["Notes", payment.note],
   ].filter(([, v]) => v);
   const articles = (order?.line_items || []).map((l) => `${l.name} — ${dollars(l.base_price_money)}`);
   const sujet = `Nouvelle réservation : ${m.forfait} — ${jour(m.date_evenement)} — ${m.nom}`;
