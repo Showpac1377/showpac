@@ -21,6 +21,12 @@ const EXTRAS = {
   adaptateur:   { nom: 'Adaptateur audio 3/16',                      prix: 5 },
 };
 
+// Options de livraison (non comprises dans le 20 % par journée ni dans la protection)
+const LIVRAISON = {
+  express:   { nom: 'Livraison express (24 h)', prix: 50 },
+  ramassage: { nom: 'Ramassage le jour même',   prix: 60 },
+};
+
 const TAUX_JOUR_SUP = 0.20;     // chaque journée de plus = 20 % de la location (forfait + extras)
 const MAX_JOURS_SUP = 6;
 const TAUX_TAXES = 0.14975;      // TPS 5 % + TVQ 9,975 %
@@ -32,7 +38,7 @@ const FRAIS_CARTE_TAUX = 0.03;   // 3 % sur le total payé en ligne par carte (l
 
 const cents = (dollars) => Math.round(dollars * 100);
 
-function calculer({ forfait, extras = [], assurance = false, jours = 0 }) {
+function calculer({ forfait, extras = [], assurance = false, jours = 0, livraison = [], deplacement = null }) {
   const f = FORFAITS[forfait];
   if (!f) throw new Error('forfait_invalide');
 
@@ -50,14 +56,27 @@ function calculer({ forfait, extras = [], assurance = false, jours = 0 }) {
   const nj = Math.max(0, Math.min(MAX_JOURS_SUP, parseInt(jours, 10) || 0));
   if (nj) lignes.push({ nom: `Journée supplémentaire (${nj} × 20 % de la location)`, cents: Math.round(lignes.reduce((t, l) => t + l.cents, 0) * TAUX_JOUR_SUP) * nj, taxable: true, joursSup: nj });
 
+  const locationCents = lignes.reduce((s, l) => s + l.cents, 0);
+  const options = [];
+  for (const k of new Set(Array.isArray(livraison) ? livraison : [])) {
+    const o = LIVRAISON[k];
+    if (!o) throw new Error('livraison_invalide');
+    if (k === 'ramassage' && nj) throw new Error('ramassage_jours');
+    lignes.push({ nom: o.nom, cents: cents(o.prix), taxable: true });
+    options.push(k);
+  }
+  // Frais de déplacement au-delà de 25 km (calculés par lib/geo.js)
+  if (deplacement && deplacement.cents > 0)
+    lignes.push({ nom: `Frais de déplacement (${deplacement.kmSup} km × 4 trajets)`, cents: deplacement.cents, taxable: true });
+
   const sousTotal = lignes.reduce((s, l) => s + l.cents, 0);
-  const assuranceCents = assurance ? Math.round(sousTotal * TAUX_ASSURANCE) : 0;
+  const assuranceCents = assurance ? Math.round(locationCents * TAUX_ASSURANCE) : 0;
   const taxes = Math.round(sousTotal * TAUX_TAXES);
   let total = sousTotal + assuranceCents + taxes;
   const frais = Math.round(total * FRAIS_CARTE_TAUX);
   total += frais;
 
-  return { forfaitNom: f.nom, joursSup: nj, lignes, sousTotal, assuranceCents, taxes, frais, total, acompte: ACOMPTE_CENTS };
+  return { forfaitNom: f.nom, joursSup: nj, options, lignes, sousTotal, assuranceCents, taxes, frais, total, acompte: ACOMPTE_CENTS };
 }
 
-module.exports = { FORFAITS, EXTRAS, TAUX_TAXES, ACOMPTE_CENTS, MAX_JOURS_SUP, calculer };
+module.exports = { FORFAITS, EXTRAS, LIVRAISON, TAUX_TAXES, ACOMPTE_CENTS, MAX_JOURS_SUP, calculer };
