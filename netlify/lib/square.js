@@ -96,15 +96,51 @@ async function datesBloquees() {
   return Array.from(new Set([...pleines, ...datesBloqueesManuelles()])).sort();
 }
 
-async function creerLienPaiement(commande, redirectUrl, courriel, note) {
-  const rep = await appel('/v2/online-checkout/payment-links', {
+// Téléphone au format international (+15145551234), sinon undefined
+function telE164(t) {
+  const d = String(t || '').replace(/\D/g, '');
+  if (d.length === 10) return '+1' + d;
+  if (d.length === 11 && d[0] === '1') return '+' + d;
+  return undefined;
+}
+
+// Fiche client Square (nom, courriel, téléphone) : visible par Pierre dans Square.
+// Réutilise la fiche existante si le courriel est déjà connu. Ne bloque jamais le paiement.
+async function ficheClient({ nom, courriel, telephone, adresse, entreprise }) {
+  try {
+    if (courriel) {
+      const r = await appel('/v2/customers/search', { query: { filter: { email_address: { exact: courriel } } }, limit: 1 });
+      if (r.customers && r.customers[0]) return r.customers[0].id;
+    }
+    const [prenom, ...reste] = String(nom || '').trim().split(/\s+/);
+    const fiche = {
+      idempotency_key: require('crypto').randomUUID(),
+      given_name: prenom || undefined, family_name: reste.join(' ') || undefined,
+      email_address: courriel || undefined, phone_number: telE164(telephone),
+      company_name: entreprise || undefined,
+      note: adresse ? 'Adresse de l’événement : ' + adresse : undefined,
+    };
+    try { return (await appel('/v2/customers', fiche)).customer.id; }
+    catch (e) { delete fiche.phone_number; fiche.idempotency_key = require('crypto').randomUUID(); fiche.note = [fiche.note, 'Tél. : ' + telephone].filter(Boolean).join(' — '); return (await appel('/v2/customers', fiche)).customer.id; }
+  } catch (e) {
+    console.error('Fiche client Square:', e.message, JSON.stringify(e.details || {}));
+    return undefined;
+  }
+}
+
+async function creerLienPaiement(commande, redirectUrl, courriel, note, telephone) {
+  const corps = (tel) => ({
     idempotency_key: require('crypto').randomUUID(),
     order: Object.assign({ location_id: process.env.SQUARE_LOCATION_ID }, commande),
     checkout_options: { redirect_url: redirectUrl, ask_for_shipping_address: false },
-    pre_populated_data: courriel ? { buyer_email: courriel } : undefined,
+    pre_populated_data: (courriel || tel) ? { buyer_email: courriel || undefined, buyer_phone_number: tel || undefined } : undefined,
     payment_note: note ? String(note).slice(0, 450) : undefined,
   });
+  let rep;
+  // Si Square refuse le téléphone pré-rempli, on réessaie sans lui (le paiement ne doit jamais bloquer).
+  try { rep = await appel('/v2/online-checkout/payment-links', corps(telE164(telephone))); }
+  catch (e) { if (!telE164(telephone)) throw e; rep = await appel('/v2/online-checkout/payment-links', corps(undefined)); }
   return rep.payment_link && (rep.payment_link.url || rep.payment_link.long_url);
 }
 
-module.exports = { datesBloquees, creerLienPaiement, configure };
+module.exports = { datesBloquees, creerLienPaiement, ficheClient, configure };
