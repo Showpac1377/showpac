@@ -1,7 +1,7 @@
 // POST /.netlify/functions/creer-paiement
 // Reçoit les choix du client, RECALCULE le prix, vérifie la date, crée la page de paiement Square.
 const { calculer, FORFAITS, ACOMPTE_CENTS } = require('../lib/prix');
-const { datesBloquees, creerLienPaiement, configure } = require('../lib/square');
+const { datesBloquees, creerLienPaiement, ficheClient, configure } = require('../lib/square');
 const { calculerDistance, configureDistance } = require('../lib/geo');
 
 const json = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
@@ -96,7 +96,7 @@ exports.handler = async (event) => {
 
   const site = (process.env.SITE_URL || '').replace(/\/$/, '');
   const contactPlace = [texte(d.contact_nom, 60), texte(d.contact_tel, 30)].filter(Boolean).join(' ');
-  const note = `${calc.forfaitNom}${calc.joursSup ? ' + ' + calc.joursSup + ' JOUR(S) SUPPLÉMENTAIRE(S)' : ''} le ${d.date} — ${nom} — ${telephone} — ${adresse}` +
+  const note = `${calc.forfaitNom}${calc.joursSup ? ' + ' + calc.joursSup + ' JOUR(S) SUPPLÉMENTAIRE(S)' : ''} le ${d.date} — ${nom} — TÉL. ${telephone} — ${courriel} — ${adresse}` +
     (dep ? ` — DISTANCE : ${dep.km} km` + (dep.kmSup ? ` (${dep.kmSup} km sup. facturés)` : ' (incluse)') : (depErreur ? ' — DISTANCE À VÉRIFIER' : '')) +
     (calc.options.includes('express') ? ' — LIVRAISON EXPRESS (24 h)' : '') +
     (calc.options.includes('ramassage') ? ' — RAMASSAGE LE JOUR MÊME' + (contactPlace ? ' (sur place : ' + contactPlace + ')' : '') : '') +
@@ -106,7 +106,9 @@ exports.handler = async (event) => {
     (en ? ' — CLIENT ANGLOPHONE (EN)' : '');
 
   try {
-    const url = await creerLienPaiement(commande, site + (en ? '/merci-en.html' : '/merci.html'), courriel, note);
+    const clientId = await ficheClient({ nom, courriel, telephone, adresse, entreprise: texte(d.entreprise, 80) });
+    if (clientId) commande.customer_id = clientId;
+    const url = await creerLienPaiement(commande, site + (en ? '/merci-en.html' : '/merci.html'), courriel, note, telephone);
     if (!url) return json(502, { erreur: 'paiement' });
     return json(200, { url });
   } catch (e) {
