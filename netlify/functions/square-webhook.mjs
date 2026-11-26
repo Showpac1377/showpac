@@ -81,6 +81,40 @@ export default async (req) => {
   // Ventes Square qui ne viennent pas du site (ex. paiement en personne) : on ignore
   if (!m?.courriel) return new Response("Pas une réservation du site");
 
+  // Paiement d'une facture (page payer.html) : reçu simple au client + avis à Pierre
+  if (m.type === "facture") {
+    const en = m.langue === "en";
+    const paye = dollars(payment.total_money);
+    const lignes = [["Client", m.nom], ["Entreprise", m.entreprise], ["Courriel", m.courriel], ["Téléphone", m.telephone],
+      ["Facture", m.description], ["Montant de la facture", m.montant_facture], ["Total payé (frais inclus)", paye]].filter(([, v]) => v);
+    const envois = [
+      { from: process.env.COURRIEL_EXPEDITEUR || "ShowPAC <info@showpac.com>", to: [m.courriel], reply_to: "info@showpac.com",
+        subject: en ? `Payment received — ${m.description}` : `Paiement reçu — ${m.description}`,
+        html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#171A20;max-width:560px">
+  <h2 style="margin:0 0 12px">${en ? "Thank you, your payment is received." : "Merci, votre paiement est reçu."}</h2>
+  <p>${esc(en ? `Hi ${m.nom}, we received your payment of ${paye} for: ${m.description}.` : `Bonjour ${m.nom}, nous avons bien reçu votre paiement de ${paye} pour : ${m.description}.`)}</p>
+  <p>${en ? "Square also sends you a receipt by email. Questions? Call Pierre at (450) 699-5914 or reply to this email." : "Square vous envoie aussi un reçu par courriel. Une question? Appelez Pierre au (450) 699-5914 ou répondez à ce courriel."}</p>
+  <p style="color:#6B6F76">ShowPAC — Les Productions PAC</p></div>`,
+        text: en ? `Thank you ${m.nom}, we received your payment of ${paye} for: ${m.description}. Questions? (450) 699-5914`
+                 : `Merci ${m.nom}, nous avons bien reçu votre paiement de ${paye} pour : ${m.description}. Une question? (450) 699-5914` },
+      { from: process.env.COURRIEL_AVIS_EXPEDITEUR || "Réservations ShowPAC <reservations@showpac.com>",
+        to: (process.env.COURRIEL_COPIE || "info@showpac.com").split(",").map((x) => x.trim()).filter(Boolean), reply_to: m.courriel,
+        subject: `Facture payée : ${m.description} — ${m.nom} — ${paye}`,
+        html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#171A20"><h2 style="margin:0 0 12px">Facture payée par carte</h2>
+  <table cellpadding="6" style="border-collapse:collapse">${lignes.map(([k, v]) => `<tr><td style="color:#6B6F76">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table>
+  <p style="margin-top:16px;color:#6B6F76">Répondez à ce courriel pour écrire directement au client.</p></div>`,
+        text: ["Facture payée par carte", "", ...lignes.map(([k, v]) => `${k} : ${v}`)].join("\n") },
+    ];
+    const r1 = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify(envois[0]) });
+    if (!r1.ok) { console.error("Erreur Resend (reçu facture) :", await r1.text()); return new Response("Erreur d'envoi", { status: 500 }); }
+    try {
+      const r2 = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify(envois[1]) });
+      if (!r2.ok) console.error("Erreur Resend (avis facture) :", await r2.text());
+    } catch (e) { console.error("Avis facture :", e.message); }
+    await envoyes.set(payment.id, new Date().toISOString());
+    return new Response("OK");
+  }
+
   const { sujet, html, texte } = courrielConfirmation({ ...m, total: payment.total_money });
 
   const envoi = await fetch("https://api.resend.com/emails", {
